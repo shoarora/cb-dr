@@ -17,8 +17,11 @@ BATCH_SIZE = 25
 
 # TODO:
 # other eval metrics
-# build out models
+# support big dataset
 # save stopping point in training
+# save results
+# write readme
+# build out models
 
 
 data_paths = {
@@ -91,26 +94,28 @@ if __name__ == '__main__':
     parser = get_parser()
     args = parser.parse_args()
 
+    # load model.  model_options defined in models/__init__.py
     model = model_options[args.model]()
 
     cuda = args.cuda
-
     if torch.cuda.is_available() and cuda:
         model.cuda()
 
     optimizer = None  # TODO
     criterion = torch.nn.MSELoss()
 
-    data_path = data_paths[args.dataset]
-    datasets = get_datasets(BATCH_SIZE, data_path,
-                            model.preprocess_inputs)
-
+    # load saved weights if available
     sess_name = args.sess_name
     if sess_name in os.listdir(CKPT) and model.needs_sess:
         model.load_state_dict(torch.load(os.path.join(CKPT,
                                                       sess_name)))
     elif args.eval_only and model.needs_sess:  # if eval, we need a saved model
         raise
+
+    # load data
+    data_path = data_paths[args.dataset]
+    datasets = get_datasets(BATCH_SIZE, data_path,
+                            model.preprocess_inputs)
 
     if args.train:
         for i in NUM_EPOCHS:
@@ -121,6 +126,7 @@ if __name__ == '__main__':
                 torch.save(model.state_dict(),
                            os.path.join(CKPT, sess_name))
 
+        # evaluate on test set
         test_loader = datasets[2]
         evaluate(model, test_loader, criterion, cuda)
 
