@@ -7,6 +7,9 @@ class AlwaysNo(nn.Module):
         super(AlwaysNo, self).__init__()
         self.needs_sess = False
 
+        self.num_epochs = 1
+        self.batch_size = 25
+
     def forward(self, inputs):
         return inputs
 
