@@ -1,21 +1,19 @@
 import argparse
+import json
 import os
 import torch
-
-from data import get_datasets
-from util import Progbar
-
 from torch.autograd import Variable
 
-from models import *
+from data import get_datasets
+from eval import evaluate_results
+from models import model_options
+from util import Progbar
 
 
 CKPT = 'checkpoints'
 
 # TODO:
-# other eval metrics
 # save stopping point in training
-# save results
 # write readme
 # store constants/configs in model
 # build out models
@@ -38,14 +36,14 @@ def get_parser():
     return parser
 
 
-def run_epoch(model, epoch, datasets, optimizer, criterion, cuda):
+def run_epoch(model, epoch, datasets, optimizer, criterion, cuda, results_dir, truth_file):
     train_loader, dev_loader, test_loader = datasets
 
     print 'Training epoch', epoch+1
     train(model, train_loader, optimizer, criterion, cuda)
 
     print 'Evaluating dev epoch', epoch+1
-    evaluate(model, dev_loader, optimizer, criterion, cuda)
+    evaluate(model, dev_loader, optimizer, criterion, cuda, results_dir, 'dev'+str(epoch), truth_file)
 
     save_model = None  # TODO
     return save_model
@@ -54,7 +52,7 @@ def run_epoch(model, epoch, datasets, optimizer, criterion, cuda):
 def train(model, train_loader, optimizer, criterion, cuda):
     prog = Progbar(len(train_loader))
     for j, data in enumerate(train_loader, 1):
-        inputs, labels = data
+        ids, inputs, labels = data
 
         inputs, labels = Variable(inputs), Variable(labels)
         if torch.cuda.is_available() and cuda:
@@ -71,10 +69,11 @@ def train(model, train_loader, optimizer, criterion, cuda):
                     exact=[('loss', loss.data[0])])
 
 
-def evaluate(model, loader, criterion, cuda):
+def evaluate(model, loader, criterion, cuda, results_dir, name, truth_file):
     prog = Progbar(len(loader))
+    results = {}
     for j, data in enumerate(loader, 1):
-        inputs, labels = data
+        ids, inputs, labels = data
 
         inputs, labels = Variable(inputs), Variable(labels)
         if torch.cuda.is_available() and cuda:
@@ -85,6 +84,22 @@ def evaluate(model, loader, criterion, cuda):
 
         prog.update(j, values=[('avg_loss', loss.data[0])],
                     exact=[('loss', loss.data[0])])
+
+        for id, output in zip(ids, outputs):
+            results[id] = output
+
+    predictions_file = os.path.join(results_dir, name, 'predictions', '.json')
+    output_file = os.path.join(results_dir, name, 'output', '.prototext')
+
+    with open(predictions_file, 'w') as f:
+        for id, output in results.iteritems():
+            f.write(json.dumps({
+                'id': id,
+                'clickbaitScore': output
+            }))
+
+    evaluate_results(truth_file, predictions_file, output_file)
+    # TODO call eval function, save results to dir
 
 
 if __name__ == '__main__':
@@ -105,7 +120,7 @@ if __name__ == '__main__':
     sess_name = args.sess_name
     if sess_name in os.listdir(CKPT):
         model.load_state_dict(torch.load(os.path.join(CKPT,
-                                                      sess_name)))
+                                                      sess_name+'.ckpt')))
     elif args.eval_only and model.needs_sess:  # if eval, we need a saved model
         raise
 
@@ -113,11 +128,14 @@ if __name__ == '__main__':
     data_path = data_paths[args.dataset]
     datasets = get_datasets(model.batch_size, data_path,
                             model.preprocess_inputs)
+    truth_file = os.path.join(data_path, 'truth.jsonl')
+
+    results_dir = os.path.join(CKPT, sess_name, 'results')
 
     if args.train:
         for i in model.num_epochs:
             save_model = run_epoch(model, i, datasets, optimizer,
-                                   criterion, cuda)
+                                   criterion, cuda, results_dir, truth_file)
 
             if save_model:
                 torch.save(model.state_dict(),
@@ -125,8 +143,8 @@ if __name__ == '__main__':
 
         # evaluate on test set
         test_loader = datasets[2]
-        evaluate(model, test_loader, criterion, cuda)
+        evaluate(model, test_loader, criterion, cuda, results_dir, 'test', truth_file)
 
     if args.eval_only:
         test_loader = datasets[2]
-        evaluate(model, test_loader, criterion, cuda)
+        evaluate(model, test_loader, criterion, cuda, results_dir, 'test', truth_file)

@@ -46,17 +46,18 @@ classification_measures = {'Accuracy': skm.accuracy_score,
                            'Recall': skm.recall_score,
                            'F1 score': skm.f1_score}
 
-if __name__ == "__main__":
+
+def evaluate_results(truth_file, predictions_file, output_file):
     try:
-        with open(sys.argv[1], "r") as truth_file:
+        with open(truth_file, "r") as truth_file:
             truth_dict = {json.loads(s)['id']: json.loads(s)['truthMean']
                           for s in truth_file.readlines()}
 
-        with open(sys.argv[1], "r") as truth_file:
+        with open(truth_file, "r") as truth_file:
             class_dict = {json.loads(s)['id']: json.loads(s)['truthClass']
                           for s in truth_file.readlines()}
 
-        with open(sys.argv[2], "r") as preditcions_file:
+        with open(predictions_file, "r") as preditcions_file:
             predictions_dict = {json.loads(s)['id']: json.loads(s)['clickbaitScore']
                                 for s in preditcions_file.readlines()}
     except (KeyError, IndexError):
@@ -67,9 +68,10 @@ if __name__ == "__main__":
         classes = []
         predictions = []
         for key in truth_dict:
-            truth.append(truth_dict[key])
-            classes.append(class_dict[key])
-            predictions.append(predictions_dict[key])
+            if key in predictions_dict:
+                truth.append(truth_dict[key])
+                classes.append(class_dict[key])
+                predictions.append(predictions_dict[key])
     except KeyError:
         print('missing id in predictions.')
         exit()
