@@ -118,7 +118,7 @@ if __name__ == '__main__':
                             model.preprocess_inputs)
 
     if args.train:
-        for i in NUM_EPOCHS:
+        for i in range(NUM_EPOCHS):
             save_model = run_epoch(model, i, datasets, optimizer,
                                    criterion, cuda)
 
