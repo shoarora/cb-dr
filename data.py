@@ -1,11 +1,13 @@
 import json
 import os
+import numpy as np
 
 from torch.utils.data import Dataset, DataLoader
 
 
 class cbDataset(Dataset):
-    def __init__(self, inputs, labels):
+    def __init__(self, ids, inputs, labels):
+        self.ids = ids
         self.inputs = inputs
         self.labels = labels
 
@@ -13,29 +15,43 @@ class cbDataset(Dataset):
         return len(self.inputs)
 
     def __getitem__(self, i):
-        return self.inputs[i], self.labels[i]
+        return self.ids[i], self.inputs[i], self.labels[i]
+
+
+def process_inputs(inputs, labels, start_i, end_i, preprocess_f):
+    inputs = inputs[start_i:end_i]
+    labels = labels[start_i:end_i]
+    ids = np.array([inp['id'] for inp in inputs])
+    return ids, preprocess_f(inputs), labels
 
 
 def get_datasets(batch_size, path, preprocess_f):
     inputs = load_instances_json(path)
     labels = load_truth_json(path)
 
-    inputs = preprocess_f(inputs)
-
     num_entries = len(inputs)
 
-    train_inputs = inputs[:num_entries / 2]
-    train_labels = labels[:num_entries / 2]
+    train_ids, train_inputs, train_labels = process_inputs(inputs,
+                                                           labels,
+                                                           0,
+                                                           num_entries / 2,
+                                                           preprocess_f)
 
-    dev_inputs = inputs[num_entries / 2:num_entries * 3 / 4]
-    dev_labels = labels[num_entries / 2:num_entries * 3 / 4]
+    dev_ids, dev_inputs, dev_labels = process_inputs(inputs,
+                                                     labels,
+                                                     num_entries / 2,
+                                                     num_entries * 3 / 4,
+                                                     preprocess_f)
 
-    test_inputs = inputs[num_entries * 3 / 4:]
-    test_labels = labels[num_entries * 3 / 4:]
+    test_ids, test_inputs, test_labels = process_inputs(inputs,
+                                                        labels,
+                                                        num_entries * 3 / 4,
+                                                        num_entries,
+                                                        preprocess_f)
 
-    train = cbDataset(train_inputs, train_labels)
-    dev = cbDataset(dev_inputs, dev_labels)
-    test = cbDataset(test_inputs, test_labels)
+    train = cbDataset(train_ids, train_inputs, train_labels)
+    dev = cbDataset(dev_ids, dev_inputs, dev_labels)
+    test = cbDataset(test_ids, test_inputs, test_labels)
 
     return (DataLoader(train, batch_size),
             DataLoader(dev, batch_size),

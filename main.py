@@ -11,22 +11,19 @@ from models import *
 
 
 CKPT = 'checkpoints'
-NUM_EPOCHS = 10
-BATCH_SIZE = 25
-
 
 # TODO:
 # other eval metrics
-# support big dataset
 # save stopping point in training
 # save results
 # write readme
+# store constants/configs in model
 # build out models
 
 
 data_paths = {
-    'small': 'clickbait17-train-170331',
-    'big': None
+    'small': 'cb-small',
+    'big': 'cb-big'
 }
 
 
@@ -106,7 +103,7 @@ if __name__ == '__main__':
 
     # load saved weights if available
     sess_name = args.sess_name
-    if sess_name in os.listdir(CKPT) and model.needs_sess:
+    if sess_name in os.listdir(CKPT):
         model.load_state_dict(torch.load(os.path.join(CKPT,
                                                       sess_name)))
     elif args.eval_only and model.needs_sess:  # if eval, we need a saved model
@@ -114,11 +111,11 @@ if __name__ == '__main__':
 
     # load data
     data_path = data_paths[args.dataset]
-    datasets = get_datasets(BATCH_SIZE, data_path,
+    datasets = get_datasets(model.batch_size, data_path,
                             model.preprocess_inputs)
 
     if args.train:
-        for i in NUM_EPOCHS:
+        for i in model.num_epochs:
             save_model = run_epoch(model, i, datasets, optimizer,
                                    criterion, cuda)
 
