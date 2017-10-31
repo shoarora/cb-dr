@@ -13,10 +13,12 @@ from util import Progbar
 CKPT = 'checkpoints'
 
 # TODO:
+# write repo readme
+# feature selection
+# sklearn test
 # save stopping point in training
-# write readme
 # store constants/configs in model
-# build out models
+# test
 
 
 data_paths = {

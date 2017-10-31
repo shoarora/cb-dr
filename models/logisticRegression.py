@@ -28,4 +28,4 @@ class LogisticRegression(nn.Module):
 
     def forward(self, inputs):
         out = self.logistic(inputs)
-        return sigmoid(out)
+        return self.sigmoid(out)
