@@ -74,3 +74,38 @@ def load_truth_json(path):
             entry = json.loads(line)
             labels.append(entry['truthMean'])
     return labels
+
+
+def write_tf_and_df(path):
+    '''
+    path to data dir
+    number of times word appears in document / number of documents word appears
+    tf [(id, word): count]
+    idf [word: count]
+    '''
+    words_to_ids = {}
+    tf = {}
+    df = {}
+    inputs = load_instances_json(path)
+
+    for inp in inputs:
+        id = inp['id']
+        counts = {}
+        for line in inp['postText']:
+            for w in line.lower().split(' '):
+                # count occurrences of each word within a document
+                counts[w] = counts.get(w, 0) + 1
+                if w not in words_to_ids:
+                    words_to_ids[w] = set([])
+                words_to_ids[w].add(id)
+        tf[id] = counts
+
+    # count how many documents a word appears in
+    for w, ids in words_to_ids.iteritems():
+        df[w] = len(ids)
+    results = {
+        'term freqs': tf,
+        'doc freqs': df
+    }
+    with open(os.path.join(path, 'frequencies.json'), 'w') as f:
+        f.write(json.dumps(results))
