@@ -1,5 +1,4 @@
 import argparse
-import json
 import os
 import torch
 from torch.autograd import Variable
@@ -7,17 +6,16 @@ from torch.autograd import Variable
 from data import get_datasets
 from eval import evaluate_results
 from models import model_options
-from util import Progbar
+from util import Progbar, mkdir, write_predictions_to_file
 
 
 CKPT = 'checkpoints'
 
 # TODO:
+# write base model
 # write repo readme
 # feature selection
 # sklearn test
-# save stopping point in training
-# store constants/configs in model
 # test
 
 
@@ -28,6 +26,11 @@ data_paths = {
 
 
 def get_parser():
+    '''
+    Set up argument parser
+    Returns:
+        parser: (ArgumentParser) the created parser
+    '''
     parser = argparse.ArgumentParser()
     parser.add_argument('--train', action='store_true')
     parser.add_argument('--eval_only', action='store_true')
@@ -38,20 +41,50 @@ def get_parser():
     return parser
 
 
-def run_epoch(model, epoch, datasets, optimizer, criterion, cuda, results_dir, truth_file):
-    train_loader, dev_loader, test_loader = datasets
+def run_epoch(model, epoch, datasets, optimizer,
+              criterion, cuda, results_dir, truth_file):
+    '''
+    Run one epoch's training and dev eval routine
+    Args:
+        model: (nn.Module)       the model we're using to train/eval
+        epoch: (int)             current epoch number
+        datasets: ([Dataloader]) dataloaders for train, dev, and test sets
+        optimizer: (Optimizer)   optimizer object for model
+        criterion: (Criterion)   the criteron we're evaluating
+        cuda: (bool)             whether to use cuda
+        results_dir: (str)       path to store evaluation results
+        truth_file: (str)        path to file where labels for data is stored
+    Returns:
+        dev_acc: (float) the accuracy the model achieved on the dev set
+    '''
+    train_loader, dev_loader, _ = datasets
 
     print 'Training epoch', epoch+1
     train(model, train_loader, optimizer, criterion, cuda)
 
     print 'Evaluating dev epoch', epoch+1
-    evaluate(model, dev_loader, optimizer, criterion, cuda, results_dir, 'dev'+str(epoch), truth_file)
-
-    save_model = None  # TODO
-    return save_model
+    dev_acc = evaluate(model,
+                       dev_loader,
+                       optimizer,
+                       criterion,
+                       cuda,
+                       results_dir,
+                       'dev'+str(epoch),
+                       truth_file)
+    return dev_acc
 
 
 def train(model, train_loader, optimizer, criterion, cuda):
+    '''
+    Run one epoch's training routine
+    Args:
+        model: (nn.Module)         the model we're using to train/eval
+        train_loader: (Dataloader) dataloader for train set
+        optimizer: (Optimizer)     optimizer object for model
+        criterion: (Criterion)     the criteron we're evaluating
+        cuda: (bool)               whether to use cuda
+    '''
+    model.train()
     prog = Progbar(len(train_loader))
     for j, data in enumerate(train_loader, 1):
         ids, inputs, labels = data
@@ -72,6 +105,20 @@ def train(model, train_loader, optimizer, criterion, cuda):
 
 
 def evaluate(model, loader, criterion, cuda, results_dir, name, truth_file):
+    '''
+    Run one epoch's eval routine
+    Args:
+        model: (nn.Module)     the model we're using to train/eval
+        loader: (Dataloader)   dataloader to evaluate on
+        criterion: (Criterion) the criteron we're evaluating
+        cuda: (bool)           whether to use cuda
+        results_dir: (str)     path to store evaluation results
+        name: (str)            name for this individual evaluation of model
+        truth_file: (str)      path to file where labels for data is stored
+    Returns:
+        accuracy: (float)      model's accuracy on provided dataset
+    '''
+    model.eval()
     prog = Progbar(len(loader))
     results = {}
     for j, data in enumerate(loader, 1):
@@ -90,39 +137,57 @@ def evaluate(model, loader, criterion, cuda, results_dir, name, truth_file):
         for id, output in zip(ids, outputs):
             results[id] = output
 
-    predictions_file = os.path.join(results_dir, name, 'predictions', '.json')
-    output_file = os.path.join(results_dir, name, 'output', '.prototext')
+    predictions_file = os.path.join(results_dir, name+'_predictions.json')
+    output_file = os.path.join(results_dir, name+'_output.prototext')
 
-    with open(predictions_file, 'w') as f:
-        for id, output in results.iteritems():
-            f.write(json.dumps({
-                'id': id,
-                'clickbaitScore': output
-            }))
+    write_predictions_to_file(results, predictions_file)
 
-    evaluate_results(truth_file, predictions_file, output_file)
-    # TODO call eval function, save results to dir
+    accuracy = evaluate_results(truth_file, predictions_file, output_file)
+    return accuracy
+
+
+def load_checkpoint(sess_name, model):
+    '''
+    Load checkpoint for given session
+    Args:
+        sess_name: (str)   the name of the session we want to load model for
+        model: (nn.Module) the model to load from checkpoint
+    Returns:
+        model: (nn.Module)    the model restored from checkpoint
+        best_dev_acc: (float) the best accuracy this model achieved on dev set
+        epoch: (int)          the epoch we saved this checkpoint at
+    '''
+    path = os.path.join(CKPT, sess_name+'.ckpt')
+    checkpoint = torch.load(path)
+    model.load_state_dict(checkpoint['state_dict'])
+    best_dev_acc = checkpoint['best_dev_acc']
+    epoch = checkpoint['epoch']
+    return model, best_dev_acc, epoch
 
 
 if __name__ == '__main__':
+    mkdir(CKPT)
     parser = get_parser()
     args = parser.parse_args()
 
     # load model.  model_options defined in models/__init__.py
     model = model_options[args.model]()
+    best_dev_acc = 0.0
+    epoch = 0
 
+    # move to cuda
     cuda = args.cuda
     if torch.cuda.is_available() and cuda:
         model.cuda()
 
-    optimizer = None  # TODO
+    # init training optimizer and criterion
+    optimizer = torch.optim.Adam(model.parameters())
     criterion = torch.nn.MSELoss()
 
     # load saved weights if available
     sess_name = args.sess_name
-    if sess_name in os.listdir(CKPT):
-        model.load_state_dict(torch.load(os.path.join(CKPT,
-                                                      sess_name+'.ckpt')))
+    if sess_name+'.ckpt' in os.listdir(CKPT):
+        model, best_dev_acc, epoch = load_checkpoint(sess_name, model)
     elif args.eval_only and model.needs_sess:  # if eval, we need a saved model
         raise
 
@@ -130,23 +195,35 @@ if __name__ == '__main__':
     data_path = data_paths[args.dataset]
     datasets = get_datasets(model.batch_size, data_path,
                             model.preprocess_inputs)
-    truth_file = os.path.join(data_path, 'truth.jsonl')
 
+    # set up storage for eval results
+    truth_file = os.path.join(data_path, 'truth.jsonl')
     results_dir = os.path.join(CKPT, sess_name, 'results')
+    mkdir(results_dir)
 
     if args.train:
-        for i in model.num_epochs:
-            save_model = run_epoch(model, i, datasets, optimizer,
-                                   criterion, cuda, results_dir, truth_file)
+        for i in range(epoch, model.num_epochs):
+            dev_acc = run_epoch(model, i, datasets, optimizer,
+                                criterion, cuda, results_dir, truth_file)
+            if dev_acc > best_dev_acc:
+                # if model performs best so far, save it
+                best_dev_acc = dev_acc
+                checkpoint = {
+                    'state_dict': model.state_dict(),
+                    'epoch': i+1,
+                    'best_dev_acc': best_dev_acc
+                }
+                torch.save(checkpoint, os.path.join(CKPT, sess_name+'.ckpt'))
 
-            if save_model:
-                torch.save(model.state_dict(),
-                           os.path.join(CKPT, sess_name))
-
-        # evaluate on test set
+        # load best model and eval on test set
+        model, _, epoch = load_checkpoint(sess_name, model)
+        print 'evaluating on model from epoch', epoch
         test_loader = datasets[2]
-        evaluate(model, test_loader, criterion, cuda, results_dir, 'test', truth_file)
+        evaluate(model, test_loader, criterion, cuda,
+                 results_dir, 'test', truth_file)
 
     if args.eval_only:
+        print 'evaluating on model from epoch', epoch
         test_loader = datasets[2]
-        evaluate(model, test_loader, criterion, cuda, results_dir, 'test', truth_file)
+        evaluate(model, test_loader, criterion, cuda,
+                 results_dir, 'test', truth_file)

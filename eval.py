@@ -100,6 +100,7 @@ def evaluate_results(truth_file, predictions_file, output_file):
 
             print(UNDERLINE + '\nClassification report' + END)
             print(skm.classification_report(classes, predictions))
+            return classification_measures['Accuracy'](classes, predictions)
 
     except IndexError:
         print('no output file specified.')
