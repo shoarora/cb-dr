@@ -34,18 +34,18 @@ def get_datasets(batch_size, path, preprocess_f):
     train_ids, train_inputs, train_labels = process_inputs(inputs,
                                                            labels,
                                                            0,
-                                                           num_entries / 2,
+                                                           num_entries * 3 / 5,
                                                            preprocess_f)
 
     dev_ids, dev_inputs, dev_labels = process_inputs(inputs,
                                                      labels,
-                                                     num_entries / 2,
-                                                     num_entries * 3 / 4,
+                                                     num_entries * 3 / 5,
+                                                     num_entries * 4 / 5,
                                                      preprocess_f)
 
     test_ids, test_inputs, test_labels = process_inputs(inputs,
                                                         labels,
-                                                        num_entries * 3 / 4,
+                                                        num_entries * 4 / 5,
                                                         num_entries,
                                                         preprocess_f)
 

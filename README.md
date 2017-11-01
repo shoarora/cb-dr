@@ -7,7 +7,7 @@ implemented in `sklearn` and `pytorch`
 ## TODOs
 -   sklearn harness
 -   feature selection
--   test pytorch harness
+-   figure out what's wrong with the F1 score
 
 ## Models
 -   Logistic Regression

@@ -18,8 +18,8 @@ def write_predictions_to_file(predictions, path):
         for id, output in predictions.iteritems():
             f.write(json.dumps({
                 'id': id,
-                'clickbaitScore': output
-            }))
+                'clickbaitScore': float(output.data.numpy()[0])
+            })+'\n')
 
 
 class Progbar(object):

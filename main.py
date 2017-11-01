@@ -9,19 +9,11 @@ from models import model_options
 from util import Progbar, mkdir, write_predictions_to_file
 
 
+BORDER = '_' * 80
 CKPT = 'checkpoints'
-
-# TODO:
-# write base model
-# write repo readme
-# feature selection
-# sklearn test
-# test
-
-
 data_paths = {
-    'small': 'cb-small',
-    'big': 'cb-big'
+    'small': 'data/cb-small',
+    'big': 'data/cb-big'
 }
 
 
@@ -65,7 +57,6 @@ def run_epoch(model, epoch, datasets, optimizer,
     print 'Evaluating dev epoch', epoch+1
     dev_acc = evaluate(model,
                        dev_loader,
-                       optimizer,
                        criterion,
                        cuda,
                        results_dir,
@@ -89,12 +80,11 @@ def train(model, train_loader, optimizer, criterion, cuda):
     for j, data in enumerate(train_loader, 1):
         ids, inputs, labels = data
 
-        inputs, labels = Variable(inputs), Variable(labels)
+        inputs, labels = Variable(inputs), Variable(labels.float())
         if torch.cuda.is_available() and cuda:
             inputs, labels = inputs.cuda(), labels.cuda()
 
         optimizer.zero_grad()
-
         outputs = model(inputs)
         loss = criterion(outputs, labels)
         loss.backward()
@@ -124,7 +114,7 @@ def evaluate(model, loader, criterion, cuda, results_dir, name, truth_file):
     for j, data in enumerate(loader, 1):
         ids, inputs, labels = data
 
-        inputs, labels = Variable(inputs), Variable(labels)
+        inputs, labels = Variable(inputs), Variable(labels.float())
         if torch.cuda.is_available() and cuda:
             inputs, labels = inputs.cuda(), labels.cuda()
 
@@ -141,7 +131,7 @@ def evaluate(model, loader, criterion, cuda, results_dir, name, truth_file):
     output_file = os.path.join(results_dir, name+'_output.prototext')
 
     write_predictions_to_file(results, predictions_file)
-
+    print '\n' * 2
     accuracy = evaluate_results(truth_file, predictions_file, output_file)
     return accuracy
 
@@ -188,6 +178,8 @@ if __name__ == '__main__':
     sess_name = args.sess_name
     if sess_name+'.ckpt' in os.listdir(CKPT):
         model, best_dev_acc, epoch = load_checkpoint(sess_name, model)
+        print 'Loaded old checkpoint for ', sess_name, 'at ', epoch
+        print 'Previous best_dev_acc', best_dev_acc
     elif args.eval_only and model.needs_sess:  # if eval, we need a saved model
         raise
 
@@ -199,6 +191,7 @@ if __name__ == '__main__':
     # set up storage for eval results
     truth_file = os.path.join(data_path, 'truth.jsonl')
     results_dir = os.path.join(CKPT, sess_name, 'results')
+    mkdir(os.path.join(CKPT, sess_name))
     mkdir(results_dir)
 
     if args.train:
@@ -208,22 +201,24 @@ if __name__ == '__main__':
             if dev_acc > best_dev_acc:
                 # if model performs best so far, save it
                 best_dev_acc = dev_acc
+                print 'saving new best dev_acc', dev_acc
                 checkpoint = {
                     'state_dict': model.state_dict(),
                     'epoch': i+1,
                     'best_dev_acc': best_dev_acc
                 }
                 torch.save(checkpoint, os.path.join(CKPT, sess_name+'.ckpt'))
+            print BORDER
 
         # load best model and eval on test set
         model, _, epoch = load_checkpoint(sess_name, model)
-        print 'evaluating on model from epoch', epoch
+        print 'evaluating test set on model from epoch', epoch
         test_loader = datasets[2]
         evaluate(model, test_loader, criterion, cuda,
                  results_dir, 'test', truth_file)
 
     if args.eval_only:
-        print 'evaluating on model from epoch', epoch
+        print 'evaluating test set on model from epoch', epoch
         test_loader = datasets[2]
         evaluate(model, test_loader, criterion, cuda,
                  results_dir, 'test', truth_file)
