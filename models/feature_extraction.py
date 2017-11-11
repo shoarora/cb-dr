@@ -1,3 +1,7 @@
+import json
+import os
+import math
+
 def average_paragraph_length(targetParagraphs):
     sum = 0.0
     if len(targetParagraphs) == 0:
@@ -33,3 +37,27 @@ def basic_feature_extraction(inputs):
                            len(targetTitle), word_length, num_words])
 
     return new_inputs
+
+
+
+
+def tfidf_feature_extraction(path):
+    with open(os.path.join(path, 'frequencies.json'), 'r') as f:
+        entry = json.load(f)
+    ids = entry['ids']
+    tf = entry['term freqs']
+    df = entry['doc freqs']
+    new_inputs = []
+    for id in ids:
+        tfidf_vocab = []
+        counts = tf[id]
+        for w in df:
+            count = counts.get(w, 0) 
+            idf = -math.log(float(df[w]) / len(ids))
+            tfidf_vocab.append(count*idf)
+        new_inputs.append(tfidf_vocab)
+    with open(os.path.join(path, 'tfidf_features.json'), 'w') as f:
+        f.write(json.dumps({'new_inputs': new_inputs}))
+
+
+tfidf_feature_extraction('../../../clickbait17-train-170331')
