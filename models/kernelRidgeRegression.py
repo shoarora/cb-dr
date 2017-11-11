@@ -1,12 +1,10 @@
 import numpy as np
-from sklearn import svm
+from sklearn.kernel_ridge import KernelRidge
 
-class SVM():
+class KernelRidge():
     def __init__(self):
-        # support vector regression
-        self.svr = svm.SVR()
-        # support vector classification
-        self.svc = svm.SVC()
+        # kernel ridge regression model
+        self.model = KernelRidge()
 
         self.num_epochs = 1
         self.batch_size = 25
@@ -24,8 +22,8 @@ class SVM():
         return new_inputs
 
     def fit(self, X, y):
-        self.svr.fit(X, y)
+        self.model.fit(X, y)
         #self.svc.fit(X, y)
 
     def predict(self, X):
-        return self.svr.predict(X)
+        return self.model.predict(X)
