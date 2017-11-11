@@ -126,7 +126,7 @@ def evaluate(model, loader, criterion, cuda, results_dir, name, truth_file):
 
         for id, output in zip(ids, outputs):
             if cuda:
-                output.cpu()
+                output = output.cpu()
             output = float(output.data.numpy()[0])
             results[str(id)] = output
 
