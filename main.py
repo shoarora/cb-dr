@@ -125,12 +125,15 @@ def evaluate(model, loader, criterion, cuda, results_dir, name, truth_file):
                     exact=[('loss', loss.data[0])])
 
         for id, output in zip(ids, outputs):
+            if cuda:
+                output.cpu()
+            output = float(output.data.numpy()[0])
             results[str(id)] = output
 
     predictions_file = os.path.join(results_dir, name+'_predictions.json')
     output_file = os.path.join(results_dir, name+'_output.prototext')
 
-    write_predictions_to_file(results, predictions_file, is_torch=True)
+    write_predictions_to_file(results, predictions_file)
     print '\n' * 2
     accuracy = evaluate_results(truth_file, predictions_file, output_file)
     return accuracy

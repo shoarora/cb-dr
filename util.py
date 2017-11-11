@@ -13,7 +13,7 @@ def mkdir(path):
         pass
 
 
-def write_predictions_to_file(predictions, path, is_torch=False):
+def write_predictions_to_file(predictions, path):
     with open(path, 'w') as f:
         for id, output in predictions.iteritems():
             if is_torch:
