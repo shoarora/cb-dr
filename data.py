@@ -25,7 +25,7 @@ def process_inputs(inputs, labels, start_i, end_i, preprocess_f):
     return ids, preprocess_f(inputs), labels
 
 
-def get_datasets(batch_size, path, preprocess_f):
+def get_datasets(batch_size, path, preprocess_f, sk=False):
     inputs = load_instances_json(path)
     labels = load_truth_json(path)
 
@@ -52,6 +52,9 @@ def get_datasets(batch_size, path, preprocess_f):
     train = cbDataset(train_ids, train_inputs, train_labels)
     dev = cbDataset(dev_ids, dev_inputs, dev_labels)
     test = cbDataset(test_ids, test_inputs, test_labels)
+
+    if sk:
+        return (train, dev, test)
 
     return (DataLoader(train, batch_size),
             DataLoader(dev, batch_size),

@@ -101,7 +101,6 @@ def evaluate(model, loader, criterion, cuda, results_dir, name, truth_file):
     evaluate_results(truth_file, predictions_file, output_file)
     # TODO call eval function, save results to dir
 
-
 if __name__ == '__main__':
     parser = get_parser()
     args = parser.parse_args()
