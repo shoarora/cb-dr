@@ -13,13 +13,19 @@ def mkdir(path):
         pass
 
 
-def write_predictions_to_file(predictions, path):
+def write_predictions_to_file(predictions, path, is_torch=False):
     with open(path, 'w') as f:
         for id, output in predictions.iteritems():
-            f.write(json.dumps({
-                'id': id,
-                'clickbaitScore': float(output.data.numpy()[0])
-            })+'\n')
+            if is_torch:
+                f.write(json.dumps({
+                    'id': id,
+                    'clickbaitScore': float(output.data.numpy()[0])
+                })+'\n')
+            else:
+                f.write(json.dumps({
+                    'id': id,
+                    'clickbaitScore': output
+                })+'\n')
 
 
 class Progbar(object):

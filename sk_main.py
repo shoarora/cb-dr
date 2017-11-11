@@ -1,7 +1,9 @@
 import argparse
+import os
+from util import write_predictions_to_file, mkdir
+from eval import evaluate_results
 from models import sk_model_options
 from data import get_datasets
-import os
 import numpy as np
 
 data_paths = {
@@ -9,15 +11,19 @@ data_paths = {
     'big': 'data/cb-big'
 }
 
+CKPT = 'checkpoints'
+
+
 def get_parser():
     parser = argparse.ArgumentParser()
-    #parser.add_argument('--train', action='store_true')
-    #parser.add_argument('--eval_only', action='store_true')
+    # parser.add_argument('--train', action='store_true')
+    # parser.add_argument('--eval_only', action='store_true')
     parser.add_argument('--dataset', choices={'small', 'big'})
     parser.add_argument('--model', choices=sk_model_options.keys())
-    #parser.add_argument('--cuda', action='store_true')
-    #parser.add_argument('--sess_name')
+    # parser.add_argument('--cuda', action='store_true')
+    parser.add_argument('--sess_name')
     return parser
+
 
 def train(model, train_set):
     X = np.array(train_set.inputs)
@@ -25,23 +31,25 @@ def train(model, train_set):
 
     model.fit(X, y)
 
-def equals(x, y):
-    return abs(x - y) < 1e-10
 
-def evaluate(model, test_set):
+def evaluate(model, test_set, results_dir, name, truth_file):
+    ids = np.array(test_set.ids)
     X = np.array(test_set.inputs)
-    labels = np.array(test_set.labels)
     predictions = model.predict(X)
 
-    true_label = 0
-    for y, y_hat in zip(labels, predictions):
-        if equals(y, y_hat):
-            true_label += 1
+    results = {}
+    for id, output in zip(ids, predictions):
+        results[id] = output
 
-    print '%d correct out of %d' % (true_label, len(labels))
-    false_label = len(labels) - true_label
-    error_rate = (false_label / len(labels)) * 100.
-    print 'error rate: %.2f%%' % error_rate
+    predictions_file = os.path.join(results_dir, name+'_predictions.json')
+    output_file = os.path.join(results_dir, name+'_output.prototext')
+
+    write_predictions_to_file(results, predictions_file)
+    print '\n' * 2
+    accuracy = evaluate_results(truth_file, predictions_file, output_file)
+
+    return accuracy
+
 
 def main():
     parser = get_parser()
@@ -57,7 +65,13 @@ def main():
 
     train(model, train_set)
 
-    evaluate(model, test_set)
+    truth_file = os.path.join(data_path, 'truth.jsonl')
+    mkdir(os.path.join(CKPT, args.sess_name))
+    results_dir = os.path.join(CKPT, args.sess_name, 'results')
+    mkdir(results_dir)
+    evaluate(model, dev_set, results_dir, 'dev', truth_file)
+    evaluate(model, test_set, results_dir, 'test', truth_file)
+
 
 if __name__ == "__main__":
     main()

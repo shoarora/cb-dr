@@ -130,7 +130,7 @@ def evaluate(model, loader, criterion, cuda, results_dir, name, truth_file):
     predictions_file = os.path.join(results_dir, name+'_predictions.json')
     output_file = os.path.join(results_dir, name+'_output.prototext')
 
-    write_predictions_to_file(results, predictions_file)
+    write_predictions_to_file(results, predictions_file, is_torch=True)
     print '\n' * 2
     accuracy = evaluate_results(truth_file, predictions_file, output_file)
     return accuracy
