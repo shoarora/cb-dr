@@ -8,6 +8,9 @@ class SVM():
         # support vector classification
         self.svc = svm.SVC()
 
+        self.num_epochs = 1
+        self.batch_size = 25
+
     def preprocess_inputs(self, inputs):
 
         # list of tuples where the tuple is a feature vector
