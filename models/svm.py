@@ -13,14 +13,6 @@ class SVM():
     def preprocess_inputs(self, inputs):
 
         # list of tuples where the tuple is a feature vector
-        # inputs = [
-        #     (
-        #         int(x['id']),
-        #         len(x['targetKeywords'].split(','))
-        #     )
-        #
-        #     for x in inputs
-        # ]
 
         inputs = basic_feature_extraction(inputs)
 
