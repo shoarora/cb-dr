@@ -53,7 +53,7 @@ def evaluate_results(truth_file, predictions_file, output_file):
             truth_dict = {json.loads(s)['id']: json.loads(s)['truthMean']
                           for s in truth_file.readlines()}
 
-        with open(truth_file, "r") as truth_file:
+            truth_file.seek(0)
             class_dict = {json.loads(s)['id']: json.loads(s)['truthClass']
                           for s in truth_file.readlines()}
 
@@ -77,20 +77,20 @@ def evaluate_results(truth_file, predictions_file, output_file):
         exit()
 
     try:
-        with open(sys.argv[3], 'w') as output_file:
-            print(UNDERLINE + '\nDataset Stats' + END)
+        with open(output_file, 'w') as output_file:
+            # print(UNDERLINE + '\nDataset Stats' + END)
             write_result('Size', len(truth), output_file)
             sum_clickbait = sum(1 for x in classes if x == 'clickbait')
             write_result('#Clickbait', sum_clickbait, output_file)
             write_result('#No-Clickbait', len(truth) - sum_clickbait, output_file)
 
-            print(UNDERLINE + '\nRegression scores' + END)
+            # print(UNDERLINE + '\nRegression scores' + END)
             for name in regression_measures:
                 write_result(name,
                              regression_measures[name](truth, predictions),
                              output_file)
 
-            print(UNDERLINE + '\nBinary classification scores' + END)
+            # print(UNDERLINE + '\nBinary classification scores' + END)
             classes = [0 if t == 'no-clickbait' else 1 for t in classes]
             predictions = [0 if t < 0.5 else 1 for t in predictions]
             for name in classification_measures:
@@ -98,8 +98,9 @@ def evaluate_results(truth_file, predictions_file, output_file):
                              classification_measures[name](classes, predictions),
                              output_file)
 
-            print(UNDERLINE + '\nClassification report' + END)
+            # print(UNDERLINE + '\nClassification report' + END)
             print(skm.classification_report(classes, predictions))
+            return classification_measures['Accuracy'](classes, predictions)
 
     except IndexError:
         print('no output file specified.')

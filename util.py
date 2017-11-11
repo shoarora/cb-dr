@@ -1,7 +1,25 @@
+import json
+import os
 import sys
 import time
 
 import numpy as np
+
+
+def mkdir(path):
+    try:
+        os.mkdir(path)
+    except OSError:
+        pass
+
+
+def write_predictions_to_file(predictions, path):
+    with open(path, 'w') as f:
+        for id, output in predictions.iteritems():
+            f.write(json.dumps({
+                'id': id,
+                'clickbaitScore': float(output.data.numpy()[0])
+            })+'\n')
 
 
 class Progbar(object):
