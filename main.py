@@ -80,7 +80,7 @@ def train(model, train_loader, optimizer, criterion, cuda):
     for j, data in enumerate(train_loader, 1):
         ids, inputs, labels = data
 
-        inputs, labels = Variable(inputs), Variable(labels.float())
+        inputs, labels = Variable(inputs.float()), Variable(labels.float())
         if torch.cuda.is_available() and cuda:
             inputs, labels = inputs.cuda(), labels.cuda()
 
@@ -114,7 +114,7 @@ def evaluate(model, loader, criterion, cuda, results_dir, name, truth_file):
     for j, data in enumerate(loader, 1):
         ids, inputs, labels = data
 
-        inputs, labels = Variable(inputs), Variable(labels.float())
+        inputs, labels = Variable(inputs.float()), Variable(labels.float())
         if torch.cuda.is_available() and cuda:
             inputs, labels = inputs.cuda(), labels.cuda()
 
@@ -125,7 +125,10 @@ def evaluate(model, loader, criterion, cuda, results_dir, name, truth_file):
                     exact=[('loss', loss.data[0])])
 
         for id, output in zip(ids, outputs):
-            results[id] = output
+            if cuda:
+                output = output.cpu()
+            output = float(output.data.numpy()[0])
+            results[str(id)] = output
 
     predictions_file = os.path.join(results_dir, name+'_predictions.json')
     output_file = os.path.join(results_dir, name+'_output.prototext')

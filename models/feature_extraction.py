@@ -42,7 +42,7 @@ def basic_feature_extraction(inputs):
 
 
 def tfidf_feature_extraction(path):
-    with open(os.path.join(path, 'frequencies.json'), 'r') as f:
+    with open(os.path.join(path, 'frequencies_text.json'), 'r') as f:
         entry = json.load(f)
     ids = entry['ids']
     tf = entry['term freqs']
@@ -56,8 +56,13 @@ def tfidf_feature_extraction(path):
             idf = -math.log(float(df[w]) / len(ids))
             tfidf_vocab.append(count*idf)
         new_inputs.append(tfidf_vocab)
-    with open(os.path.join(path, 'tfidf_features.json'), 'w') as f:
-        f.write(json.dumps({'new_inputs': new_inputs}))
+    count= 0
+    for i in new_inputs[0]:
+        if i != 0:
+            count += 1
+    print count
+    with open(os.path.join(path, 'tfidf_features_text.json'), 'w') as f:
+       f.write(json.dumps({'new_inputs': new_inputs}))
 
 
-tfidf_feature_extraction('../../../clickbait17-train-170331')
+

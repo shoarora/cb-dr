@@ -21,7 +21,7 @@ class cbDataset(Dataset):
 def process_inputs(inputs, labels, start_i, end_i, preprocess_f):
     inputs = inputs[start_i:end_i]
     labels = labels[start_i:end_i]
-    ids = np.array([inp['id'] for inp in inputs])
+    ids = np.array([inp['id'] for inp in inputs], dtype=np.int64)
     return ids, preprocess_f(inputs), labels
 
 

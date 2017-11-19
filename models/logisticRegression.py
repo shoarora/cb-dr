@@ -1,7 +1,8 @@
 import numpy as np
 import torch.nn as nn
+from feature_extraction import basic_feature_extraction
 
-INPUT_DIM = 2
+INPUT_DIM = 6
 OUTPUT_DIM = 1
 
 
@@ -18,14 +19,8 @@ class LogisticRegression(nn.Module):
     def preprocess_inputs(self, inputs):
 
         # list of np.arrays where the tuple is a feature vector
-        new_inputs = [
-            np.array([
-                ('fox' in x['postText'][0].lower()),
-                ('fake' in x['postText'][0].lower())
-            ], dtype=np.float32)
-            for x in inputs
-        ]
-        return new_inputs
+        # return map(np.array, basic_feature_extraction(inputs))
+        return np.array(basic_feature_extraction(inputs))
 
     def forward(self, inputs):
         out = self.logistic(inputs)

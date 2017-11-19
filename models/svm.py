@@ -13,9 +13,7 @@ class SVM():
     def preprocess_inputs(self, inputs):
 
         # list of tuples where the tuple is a feature vector
-
         inputs = basic_feature_extraction(inputs)
-
         return inputs
 
     def fit(self, X, y):
