@@ -43,7 +43,7 @@ def basic_feature_extraction(inputs):
 def tfidf_features(path, ids):
     def load_file(filepath):
         with open(filepath) as f:
-            return json.loads(f.read())['new_inputs']
+            return json.loads(f.read())
     try:
         data = load_file(os.path.join(path, 'tfidf_features_text.json'))
     except IOError:
