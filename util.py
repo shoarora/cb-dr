@@ -17,7 +17,7 @@ def write_predictions_to_file(predictions, path):
     with open(path, 'w') as f:
         for id, output in predictions.iteritems():
             f.write(json.dumps({
-                'id': id,
+                'id': str(id),
                 'clickbaitScore': output
             })+'\n')
 

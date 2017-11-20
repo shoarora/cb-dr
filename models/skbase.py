@@ -1,7 +1,7 @@
 from feature_extraction import basic_feature_extraction
 
 
-class SKBase:
+class SKBase(object):
     def __init__(self):
         pass
 
