@@ -52,6 +52,7 @@ def tfidf_features(path, ids):
     new_inputs = []
     for id in ids:
         new_inputs.append(data[str(id)])
+    print len(new_inputs[0])
     return new_inputs
 
 
