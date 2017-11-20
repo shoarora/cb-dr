@@ -46,7 +46,7 @@ def tfidf_features(path, ids):
             return json.loads(f.read())['new_inputs']
     try:
         data = load_file(os.path.join(path, 'tfidf_features_text.json'))
-    except OSError:
+    except IOError:
         tfidf_feature_extraction(path)
         data = load_file(os.path.join(path, 'tfidf_features_text.json'))
     new_inputs = []
