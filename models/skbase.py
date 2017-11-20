@@ -1,4 +1,4 @@
-from feature_extraction import basic_feature_extraction
+from feature_extraction import tfidf_features
 
 
 class SKBase(object):
@@ -6,7 +6,7 @@ class SKBase(object):
         pass
 
     def preprocess_inputs(self, inputs):
-        inputs = basic_feature_extraction(inputs)
+        inputs = tfidf_features(inputs)
         return inputs
 
     def fit(self, X, y):
