@@ -40,15 +40,18 @@ def basic_feature_extraction(inputs):
     return new_inputs
 
 
-def tfidf_features(path):
+def tfidf_features(path, ids):
     def load_file(filepath):
         with open(filepath) as f:
             return json.loads(f.read())['new_inputs']
     try:
-        new_inputs = load_file(os.path.join(path, 'tfidf_features_text.json'))
+        data = load_file(os.path.join(path, 'tfidf_features_text.json'))
     except OSError:
         tfidf_feature_extraction(path)
-        new_inputs = load_file(os.path.join(path, 'tfidf_features_text.json'))
+        data = load_file(os.path.join(path, 'tfidf_features_text.json'))
+    new_inputs = []
+    for id in ids:
+        new_inputs.append(data[id])
     return new_inputs
 
 
@@ -58,7 +61,7 @@ def tfidf_feature_extraction(path):
     ids = entry['ids']
     tf = entry['term freqs']
     df = entry['doc freqs']
-    new_inputs = []
+    new_inputs = {}
     for id in ids:
         tfidf_vocab = []
         counts = tf[id]
@@ -66,11 +69,7 @@ def tfidf_feature_extraction(path):
             count = counts.get(w, 0)
             idf = -math.log(float(df[w]) / len(ids))
             tfidf_vocab.append(count*idf)
-        new_inputs.append(tfidf_vocab)
+        new_inputs[id] = tfidf_vocab
     count = 0
-    for i in new_inputs[0]:
-        if i != 0:
-            count += 1
-    print count
     with open(os.path.join(path, 'tfidf_features_text.json'), 'w') as f:
-        f.write(json.dumps({'new_inputs': new_inputs}))
+        f.write(json.dumps(new_inputs))

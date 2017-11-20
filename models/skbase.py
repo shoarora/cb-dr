@@ -5,8 +5,8 @@ class SKBase(object):
     def __init__(self):
         pass
 
-    def preprocess_inputs(self, inputs):
-        inputs = tfidf_features(inputs)
+    def preprocess_inputs(self, inputs, ids, path):
+        inputs = tfidf_features(path, ids)
         return inputs
 
     def fit(self, X, y):

@@ -18,14 +18,13 @@ class cbDataset(Dataset):
         return self.ids[i], self.inputs[i], self.labels[i]
 
 
-def process_inputs(inputs, labels, start_i, end_i, preprocess_f):
-    inputs = inputs[start_i:end_i]
-    labels = labels[start_i:end_i]
-    ids = np.array([inp['id'] for inp in inputs], dtype=np.int64)
-    return ids, preprocess_f(inputs), labels
-
-
 def get_datasets(batch_size, path, preprocess_f, sk=False):
+    def process_inputs(inputs, labels, start_i, end_i):
+        inputs = inputs[start_i:end_i]
+        labels = labels[start_i:end_i]
+        ids = np.array([inp['id'] for inp in inputs], dtype=np.int64)
+        return ids, preprocess_f(inputs, ids, path), labels
+
     inputs = load_instances_json(path)
     labels = load_truth_json(path)
 
@@ -35,19 +34,19 @@ def get_datasets(batch_size, path, preprocess_f, sk=False):
                                                            labels,
                                                            0,
                                                            num_entries * 3 / 5,
-                                                           preprocess_f)
+                                                           )
 
     dev_ids, dev_inputs, dev_labels = process_inputs(inputs,
                                                      labels,
                                                      num_entries * 3 / 5,
                                                      num_entries * 4 / 5,
-                                                     preprocess_f)
+                                                     )
 
     test_ids, test_inputs, test_labels = process_inputs(inputs,
                                                         labels,
                                                         num_entries * 4 / 5,
                                                         num_entries,
-                                                        preprocess_f)
+                                                        )
 
     train = cbDataset(train_ids, train_inputs, train_labels)
     dev = cbDataset(dev_ids, dev_inputs, dev_labels)
