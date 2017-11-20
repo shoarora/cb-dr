@@ -89,12 +89,14 @@ def write_tf_and_df(path):
     words_to_ids = {}
     tf = {}
     df = {}
+    ids = []
     inputs = load_instances_json(path)
 
     for inp in inputs:
         id = inp['id']
+        ids.append(id)
         counts = {}
-        for line in inp['postText']:
+        for line in inp['targetParagraphs']:
             for w in line.lower().split(' '):
                 # count occurrences of each word within a document
                 counts[w] = counts.get(w, 0) + 1
@@ -104,11 +106,12 @@ def write_tf_and_df(path):
         tf[id] = counts
 
     # count how many documents a word appears in
-    for w, ids in words_to_ids.iteritems():
-        df[w] = len(ids)
+    for w, df_ids in words_to_ids.iteritems():
+        df[w] = len(df_ids)
     results = {
+        'ids': ids,
         'term freqs': tf,
         'doc freqs': df
     }
-    with open(os.path.join(path, 'frequencies.json'), 'w') as f:
+    with open(os.path.join(path, 'frequencies_text.json'), 'w') as f:
         f.write(json.dumps(results))

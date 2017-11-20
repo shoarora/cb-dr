@@ -2,6 +2,7 @@ import json
 import os
 import math
 
+
 def average_paragraph_length(targetParagraphs):
     sum = 0.0
     if len(targetParagraphs) == 0:
@@ -39,8 +40,6 @@ def basic_feature_extraction(inputs):
     return new_inputs
 
 
-
-
 def tfidf_feature_extraction(path):
     with open(os.path.join(path, 'frequencies_text.json'), 'r') as f:
         entry = json.load(f)
@@ -52,17 +51,14 @@ def tfidf_feature_extraction(path):
         tfidf_vocab = []
         counts = tf[id]
         for w in df:
-            count = counts.get(w, 0) 
+            count = counts.get(w, 0)
             idf = -math.log(float(df[w]) / len(ids))
             tfidf_vocab.append(count*idf)
         new_inputs.append(tfidf_vocab)
-    count= 0
+    count = 0
     for i in new_inputs[0]:
         if i != 0:
             count += 1
     print count
     with open(os.path.join(path, 'tfidf_features_text.json'), 'w') as f:
-       f.write(json.dumps({'new_inputs': new_inputs}))
-
-
-
+        f.write(json.dumps({'new_inputs': new_inputs}))

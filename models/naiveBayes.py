@@ -1,10 +1,10 @@
-import numpy as np
 from sklearn.naive_bayes import GaussianNB
+
 
 class naiveBayes():
     def __init__(self):
         self.gnb = GaussianNB()
-        
+
         self.num_epochs = 1
         self.batch_size = 25
 

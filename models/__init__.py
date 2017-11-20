@@ -1,7 +1,10 @@
 from alwaysNo import AlwaysNo
 from logisticRegression import LogisticRegression
-from naiveBayes import naiveBayes
+from bayesianRidgeRegression import BayesianRidge
+from kernelRidgeRegression import KernelRidgeRegression
 from svm import SVM
+import feature_extraction as FE
+
 
 model_options = {
     'no': AlwaysNo,
@@ -9,6 +12,7 @@ model_options = {
 }
 
 sk_model_options = {
-    'nb': naiveBayes,
+    'bayesRR': BayesianRidge,
+    'kernelRR': KernelRidgeRegression,
     'svm': SVM
 }
