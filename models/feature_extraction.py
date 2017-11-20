@@ -41,11 +41,14 @@ def basic_feature_extraction(inputs):
 
 
 def tfidf_features(path):
-    if not os.path.isfile(os.path.join(path, 'tfidf_features_text.json')):
+    def load_file(filepath):
+        with open(filepath) as f:
+            return json.loads(f.read())['new_inputs']
+    try:
+        new_inputs = load_file(os.path.join(path, 'tfidf_features_text.json'))
+    except OSError:
         tfidf_feature_extraction(path)
-    with open(os.path.join(path, 'tfidf_features_text.json')) as f:
-        data = json.loads(f.read())
-        new_inputs = data['new_inputs']
+        new_inputs = load_file(os.path.join(path, 'tfidf_features_text.json'))
     return new_inputs
 
 
