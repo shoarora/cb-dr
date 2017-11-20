@@ -96,7 +96,7 @@ def write_tf_and_df(path):
         id = inp['id']
         ids.append(id)
         counts = {}
-        for line in inp['targetParagraphs']:
+        for line in inp['postText']:
             for w in line.lower().split(' '):
                 # count occurrences of each word within a document
                 counts[w] = counts.get(w, 0) + 1
