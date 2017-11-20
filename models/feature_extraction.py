@@ -51,7 +51,7 @@ def tfidf_features(path, ids):
         data = load_file(os.path.join(path, 'tfidf_features_text.json'))
     new_inputs = []
     for id in ids:
-        new_inputs.append(data[id])
+        new_inputs.append(data[str(id)])
     return new_inputs
 
 
@@ -69,7 +69,7 @@ def tfidf_feature_extraction(path):
             count = counts.get(w, 0)
             idf = -math.log(float(df[w]) / len(ids))
             tfidf_vocab.append(count*idf)
-        new_inputs[id] = tfidf_vocab
+        new_inputs[str(id)] = tfidf_vocab
     count = 0
     with open(os.path.join(path, 'tfidf_features_text.json'), 'w') as f:
         f.write(json.dumps(new_inputs))
