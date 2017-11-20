@@ -40,6 +40,15 @@ def basic_feature_extraction(inputs):
     return new_inputs
 
 
+def tfidf_features(path):
+    if 'tfidf_features_text.json' not in os.listdir(path):
+        tfidf_feature_extraction(path)
+    with open(os.path.join(path, 'tfidf_features_text.json')) as f:
+        data = json.loads(f.read())
+        new_inputs = data['new_inputs']
+    return new_inputs
+
+
 def tfidf_feature_extraction(path):
     with open(os.path.join(path, 'frequencies_text.json'), 'r') as f:
         entry = json.load(f)
