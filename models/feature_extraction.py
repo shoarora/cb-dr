@@ -41,7 +41,7 @@ def basic_feature_extraction(inputs):
 
 
 def tfidf_features(path):
-    if not os.path.exists(os.path.join(path, 'tfidf_features_text.json')):
+    if not os.path.isfile(os.path.join(path, 'tfidf_features_text.json')):
         tfidf_feature_extraction(path)
     with open(os.path.join(path, 'tfidf_features_text.json')) as f:
         data = json.loads(f.read())
