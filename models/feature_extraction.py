@@ -4,16 +4,13 @@ import math
 import torchwordemb
 
 
-def get_glove_embeddings(inputs, glovepath, num_words=None):
-    def get_glove(word):
-        index = vocab[word]
-        return vec[index]
-    vocab, vec = load_glove_vecs(glovepath)
+def get_word_ids(inputs, vocab, num_words=None):
     new_inputs = []
     for inp in inputs:
+        inp = ''.join(inputs['targetParagraphs'])
         if num_words:
             inp = inp[:num_words]
-        new_input = [get_glove(word) for word in inp]
+        new_input = [vocab[word] for word in inp]
         new_inputs.append(new_input)
     return new_inputs
 

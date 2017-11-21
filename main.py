@@ -173,7 +173,8 @@ if __name__ == '__main__':
         model.cuda()
 
     # init training optimizer and criterion
-    optimizer = torch.optim.Adam(model.parameters())
+    parameters = filter(lambda p: p.requires_grad, model.parameters())
+    optimizer = torch.optim.Adam(parameters)
     criterion = torch.nn.MSELoss()
 
     # load saved weights if available

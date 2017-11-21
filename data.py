@@ -6,10 +6,11 @@ from torch.utils.data import Dataset, DataLoader
 
 
 class cbDataset(Dataset):
-    def __init__(self, ids, inputs, labels):
+    def __init__(self, ids, inputs, labels, use_images=False):
         self.ids = ids
         self.inputs = inputs
         self.labels = labels
+        # TODO support images
 
     def __len__(self):
         return len(self.inputs)
