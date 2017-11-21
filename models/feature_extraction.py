@@ -1,6 +1,26 @@
 import json
 import os
 import math
+import torchwordemb
+
+
+def get_glove_embeddings(inputs, glovepath, num_words=None):
+    def get_glove(word):
+        index = vocab[word]
+        return vec[index]
+    vocab, vec = load_glove_vecs(glovepath)
+    new_inputs = []
+    for inp in inputs:
+        if num_words:
+            inp = inp[:num_words]
+        new_input = [get_glove(word) for word in inp]
+        new_inputs.append(new_input)
+    return new_inputs
+
+
+def load_glove_vecs(path):
+    vocab, vec = torchwordemb.load_glove_text(path)
+    return vocab, vec
 
 
 def average_paragraph_length(targetParagraphs):
@@ -52,7 +72,7 @@ def tfidf_features(path, ids):
     new_inputs = []
     for id in ids:
         new_inputs.append(data[str(id)])
-    print len(new_inputs[0])
+    print "VOCAB SIZE:", len(new_inputs[0])
     return new_inputs
 
 

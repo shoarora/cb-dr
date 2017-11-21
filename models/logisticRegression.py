@@ -1,7 +1,7 @@
 from pytorchbase import TorchBase
 from torch import nn
 
-INPUT_DIM = 6
+INPUT_DIM = 9720
 OUTPUT_DIM = 1
 
 
