@@ -11,7 +11,8 @@ def get_word_ids(inputs, vocab, num_words=None):
         if num_words:
             inp = inp[:num_words]
         # we reserve index 0 for padding
-        new_input = [vocab[word]+1 for word in inp.split(' ')]
+        # TODO actually figure out what to do with unkown keys
+        new_input = [vocab.get(word, 0)+1 for word in inp.lower().split(' ')]
         new_inputs.append(new_input)
     return new_inputs
 
