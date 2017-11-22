@@ -17,7 +17,6 @@ class VanillaNN(TorchBase):
         self.layers = [nn.Linear(dims[i], dims[i+1])
                        for i in range(len(dims)-1)]
         self.activation = nn.Sigmoid()
-        # TODO softmax output?
 
     def preprocess_inputs(self, inputs, ids, path):
         new_inputs = get_word_ids(inputs, self.vocab, self.num_words)

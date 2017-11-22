@@ -10,7 +10,8 @@ def get_word_ids(inputs, vocab, num_words=None):
         inp = ''.join(inputs['targetParagraphs'])
         if num_words:
             inp = inp[:num_words]
-        new_input = [vocab[word] for word in inp]
+        # we reserve index 0 for padding
+        new_input = [vocab[word]+1 for word in inp]
         new_inputs.append(new_input)
     return new_inputs
 
