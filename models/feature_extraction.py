@@ -7,11 +7,11 @@ import torchwordemb
 def get_word_ids(inputs, vocab, num_words=None):
     new_inputs = []
     for inp in inputs:
-        inp = ''.join(inputs['targetParagraphs'])
+        inp = ''.join(inp['targetParagraphs'])
         if num_words:
             inp = inp[:num_words]
         # we reserve index 0 for padding
-        new_input = [vocab[word]+1 for word in inp]
+        new_input = [vocab[word]+1 for word in inp.split(' ')]
         new_inputs.append(new_input)
     return new_inputs
 
