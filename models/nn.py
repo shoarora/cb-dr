@@ -14,8 +14,8 @@ class VanillaNN(TorchBase):
         self.load_glove()
 
         dims = [INPUT_DIM] + OUTPUT_DIMS
-        self.layers = [nn.Linear(dims[i], dims[i+1])
-                       for i in range(len(dims)-1)]
+        self.layers = nn.ModuelList([nn.Linear(dims[i], dims[i+1])
+                                     for i in range(len(dims)-1)])
         self.activation = nn.Sigmoid()
 
     def preprocess_inputs(self, inputs, ids, path):
