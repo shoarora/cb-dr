@@ -3,15 +3,38 @@ import os
 import math
 import torchwordemb
 import numpy as np
+from string import punctuation
 
 
 def get_word_ids(inputs, vocab, num_words=None):
+    def get_tokens(inp):
+        tokens = inp.lower().split(' ')
+        special_chars = set(punctuation)
+        special_chars.add("'s'")
+        final_tokens = []
+        for tok in tokens:
+            has_special = False
+            for c in special_chars:
+                if c in tok:
+                    has_special = True
+                    toks = tok.split(c)
+                    for t in toks:
+                        final_tokens.append(t)
+                        final_tokens.append(c)
+                    del final_tokens[-1]
+            if not has_special:
+                final_tokens.append(tok)
+        return final_tokens
+
     new_inputs = []
     for inp in inputs:
         inp = ''.join(inp['targetParagraphs'])
         # we reserve index 0 for padding, and 1 for unk
-        # TODO actually figure out what to do with unkown keys
-        new_input = [vocab.get(word, 1) + 2 for word in inp.lower().split(' ')]
+        # TODO actually figure out what to do with unknown keys
+        new_input = [vocab.get(word, 1) + 2 for word in get_tokens(inp)]
+        for tok in get_tokens(inp):
+            if tok not in vocab:
+                print tok
         new_input = [x for x in new_input if x is not 0]
         if num_words:
             if len(new_input) > num_words:

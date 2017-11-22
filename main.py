@@ -157,6 +157,7 @@ def load_checkpoint(sess_name, model):
     epoch = checkpoint['epoch']
     return model, best_dev_acc, epoch
 
+
 if __name__ == '__main__':
     mkdir(CKPT)
     parser = get_parser()
