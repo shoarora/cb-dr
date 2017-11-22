@@ -24,7 +24,7 @@ class VanillaNN(TorchBase):
         return new_inputs
 
     def forward(self, x):
-        x = self.embedding(x)  # [batch x num_words x glove]
+        x = self.embedding(x.long())  # [batch x num_words x glove]
         for layer in self.layers:
             x = layer(x)
             x = self.activation(x)
