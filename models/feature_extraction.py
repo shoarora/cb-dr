@@ -2,18 +2,23 @@ import json
 import os
 import math
 import torchwordemb
+import numpy as np
 
 
 def get_word_ids(inputs, vocab, num_words=None):
     new_inputs = []
     for inp in inputs:
         inp = ''.join(inp['targetParagraphs'])
-        if num_words:
-            inp = inp[:num_words]
         # we reserve index 0 for padding
         # TODO actually figure out what to do with unkown keys
         new_input = [vocab.get(word, 0)+1 for word in inp.lower().split(' ')]
-        new_inputs.append(new_input)
+	new_input = [x for x in new_input if x is not 0]
+	if num_words:
+	    if len(new_input) > num_words:
+		new_input = new_input [:num_words]
+	    elif len(new_input) < num_words:
+		new_input += [0] * (num_words - len(new_input))
+	new_inputs.append(np.array(new_input, dtype=np.int32))
     return new_inputs
 
 

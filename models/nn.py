@@ -23,7 +23,7 @@ class VanillaNN(TorchBase):
         return new_inputs
 
     def forward(self, x):
-        x = self.embedding(x)
+        x = self.embedding(x.long())
         for layer in self.layers:
             x = layer(x)
             x = self.activation(x)
