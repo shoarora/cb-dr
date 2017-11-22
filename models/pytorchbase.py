@@ -26,11 +26,11 @@ class TorchBase(nn.Module):
         # TODO get pad, unk, start, and end working
 
         pad = torch.FloatTensor(np.zeros((1, self.glove_dim)))
-        # unk = torch.FloatTensor(np.random.rand(1, self.glove_dim))
+        unk = torch.FloatTensor(np.random.rand(1, self.glove_dim))
 
-        # self.glove = torch.cat([pad, unk, self.glove], dim=0)
-        self.glove = torch.cat([pad, self.glove], dim=0)
+        self.glove = torch.cat([pad, unk, self.glove], dim=0)
+        # self.glove = torch.cat([pad, self.glove], dim=0)
 
         self.embedding = nn.Embedding(size[0], size[1], padding_idx=0)
         self.embedding.weight = nn.Parameter(self.glove)
-        self.embedding.weight.requires_grad = False
+        # self.embedding.weight.requires_grad = False
