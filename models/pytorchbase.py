@@ -10,7 +10,8 @@ class TorchBase(nn.Module):
         self.needs_sess = True
         self.num_epochs = 10
         self.batch_size = 25
-        self.glove_path = 'data/glove/glove.6B.300d.txt'
+        self.glove_dim = 50
+        self.glove_path = 'data/glove/glove.6B.'+str(self.glove_dim)+'d.txt'
 
     def preprocess_inputs(self, inputs, ids, path):
         return np.array(tfidf_features(path, ids))
