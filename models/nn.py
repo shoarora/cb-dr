@@ -1,3 +1,4 @@
+import torch
 from torch import nn
 from pytorchbase import TorchBase
 from feature_extraction import get_word_ids
@@ -23,8 +24,8 @@ class VanillaNN(TorchBase):
         return new_inputs
 
     def forward(self, x):
-        x = self.embedding(x)
+        x = self.embedding(x)  # [batch x num_words x glove]
         for layer in self.layers:
             x = layer(x)
             x = self.activation(x)
-        return x
+        return torch.mean(x, 1)
