@@ -54,6 +54,14 @@ def run_epoch(model, epoch, datasets, optimizer,
     print 'Training epoch', epoch+1
     train(model, train_loader, optimizer, criterion, cuda)
 
+    evaluate(model,
+             train_loader,
+             criterion,
+             cuda,
+             results_dir,
+             'train'+str(epoch),
+             truth_file)
+
     print 'Evaluating dev epoch', epoch+1
     dev_acc = evaluate(model,
                        dev_loader,
@@ -175,7 +183,7 @@ if __name__ == '__main__':
 
     # init training optimizer and criterion
     parameters = filter(lambda p: p.requires_grad, model.parameters())
-    optimizer = torch.optim.Adam(parameters)
+    optimizer = torch.optim.Adam(parameters, weight_decay=1e-6)
     criterion = torch.nn.MSELoss()
 
     # load saved weights if available
