@@ -224,15 +224,19 @@ if __name__ == '__main__':
 
         # load best model and eval on test set
         model, _, epoch = load_checkpoint(sess_name, model)
-        print 'evaluating test set on model from epoch', epoch
-        test_loader = datasets[2]
-        evaluate(model, test_loader, criterion, cuda,
-                 results_dir, 'test', truth_file)
-
-    if args.eval_only:
-        print 'evaluating test set on model from epoch', epoch
-        test_loader = datasets[2]
+        print 'evaluating data sets on model from epoch', epoch
         loaders_names = zip(datasets, ['train', 'dev', 'test'])
         for loader, name in loaders_names:
+            print BORDER
+            print name
+            evaluate(model, loader, criterion, cuda,
+                     results_dir, name, truth_file)
+
+    if args.eval_only:
+        print 'evaluating data sets on model from epoch', epoch
+        loaders_names = zip(datasets, ['train', 'dev', 'test'])
+        for loader, name in loaders_names:
+            print BORDER
+            print name
             evaluate(model, loader, criterion, cuda,
                      results_dir, name, truth_file)
