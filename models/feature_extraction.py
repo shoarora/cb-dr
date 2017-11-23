@@ -41,6 +41,8 @@ def get_word_ids(inputs, vocab, num_words=None):
                 new_input = new_input[:num_words] + [4]
             elif len(new_input) < num_words:
                 new_input += [4] + [0] * (num_words - len(new_input))
+            else:
+                new_input += [4]
         new_inputs.append(np.array(new_input, dtype=np.int32))
     return new_inputs
 
