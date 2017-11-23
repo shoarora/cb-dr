@@ -13,7 +13,7 @@ class VanillaNN(TorchBase):
         super(VanillaNN, self).__init__()
         self.num_words = 100
         self.load_glove()
-
+        self.num_epochs = 100
         dims = [INPUT_DIM] + OUTPUT_DIMS
         self.layers = nn.ModuleList([nn.Linear(dims[i], dims[i+1])
                                      for i in range(len(dims)-1)])
