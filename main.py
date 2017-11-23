@@ -232,5 +232,7 @@ if __name__ == '__main__':
     if args.eval_only:
         print 'evaluating test set on model from epoch', epoch
         test_loader = datasets[2]
-        evaluate(model, test_loader, criterion, cuda,
-                 results_dir, 'test', truth_file)
+        loaders_names = zip(datasets, ['train', 'dev', 'test'])
+        for loader, name in loaders_names:
+            evaluate(model, loader, criterion, cuda,
+                     results_dir, name, truth_file)
