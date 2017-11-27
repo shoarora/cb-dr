@@ -5,15 +5,17 @@ a clickbait classifier inspired by the [Clickbait Challenge 2017] (http://www.cl
 implemented in `sklearn` and `pytorch`
 
 ## TODOs
--   sklearn harness
--   feature selection
--   figure out what's wrong with the F1 score
+-  improve tokenization
+-  use 2d weights https://nbviewer.jupyter.org/github/DSKSD/DeepNLP-models-Pytorch/blob/master/notebooks/04.Window-Classifier-for-NER.ipynb
+-  get rnn working
+-  get cnn working
+-  learn on post titles
 
 ## Models
--   Logistic Regression
--   SVM
--   Vanilla NN
--   LSTM
+-   [done] Logistic Regression
+-   [done] SVM
+-   [done] Vanilla NN
+-   RNN (pytorch rnn, gru, lstm, etc should be interchangeable)
 -   CNN
 -   Additional features from media
 
