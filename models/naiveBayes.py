@@ -1,4 +1,5 @@
 from sklearn.naive_bayes import GaussianNB
+from feature_extraction import basic_feature_extraction
 
 
 class naiveBayes():
@@ -12,18 +13,7 @@ class naiveBayes():
         print 'hello'
 
     def preprocess_inputs(self, inputs):
-
-        # list of tuples where the tuple is a feature vector
-        inputs = [
-            (
-                int(x['id']),
-                len(x['targetKeywords'].split(','))
-            )
-
-            for x in inputs
-        ]
-
-        return inputs
+        return basic_feature_extraction(inputs)
 
     def fit(self, X, y):
         self.gnb.fit(X, y)
