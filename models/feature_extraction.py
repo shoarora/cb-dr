@@ -5,23 +5,35 @@ import torchwordemb
 import numpy as np
 from string import punctuation
 
+import re
 from unidecode import unidecode as uni
 from nltk import word_tokenize
 
 def get_word_ids(inputs, vocab, num_words=None):
-    def test(paragraphs):
+    def test(inp):
         # convert all non-ascii to nearest ascii
         tokens = []
-        for sent in paragraphs:
-            sent = uni(sent)
-            tokens.append(word_tokenize(sent))
+        for sent in inp['targetParagraphs']:
+            sent = uni(sent).lower()
+            for token in word_tokenize(sent):
+
+                # if token is the beginning or end of a quotation
+                # drop the quotation. however, 's is OK.
+                if token != "'s":
+                    if len(token) > 1 and token[0] == "'":
+                        token = token[1:]
+                    if len(token) > 1 and token[-1] == "'":
+                        token = token[:-1]
+                        
+                tokens.append(token)
         return tokens
 
     def get_tokens(inp):
         inp = ''.join(inp['targetParagraphs'])
+        #inp = inp['targetParagraphs'][0]
         tokens = inp.lower().split(' ')
         special_chars = set(punctuation)
-        special_chars.add("'s'")
+        special_chars.add("'s")
         final_tokens = []
         for tok in tokens:
             has_special = False
@@ -41,17 +53,28 @@ def get_word_ids(inputs, vocab, num_words=None):
     # count = 0
 
     def hit_test(inputs, vocab, func):
-        count = 0
+        misses = []
+        hits = []
         for inp in inputs:
             # we reserve 4 indices for pad, unk, start, and end
             # TODO actually figure out what to do with unknown keys
             for word in func(inp):
                 if word in vocab:
-                    count += 1
-            print 'original hits: %d' % count
+                    hits.append(word)
+                else:
+                    misses.append(word)
+        print 'hits: %d' % len(hits)
+        print 'misses: %d' % len(misses)
+        return (hits, misses)
 
-    hit_test(inputs, vocab, get_tokens)
-    hit_test(inputs, vocab, test)
+    hits, misses = hit_test(inputs, vocab, get_tokens)
+    t_hits, t_misses = hit_test(inputs, vocab, test)
+
+    print filter(lambda x: x not in t_misses, misses)
+    print
+    
+    print t_misses
+    
 
     #     new_input = [vocab.get(word, 1) + 4 for word in get_tokens(inp)]
     #     for tok in get_tokens(inp):
@@ -152,21 +175,22 @@ def tfidf_feature_extraction(path,  save_title, choice, freq_floor = 0):
         f.write(json.dumps(new_inputs))
 
 def main():
-    # with open('../data/cb-small/instances.jsonl', 'r') as f:
-    #     data = []
-    #     for i in range(100):
-    #         obj = json.loads(f.readline())
-    #         entry = {'targetParagraphs':obj['targetParagraphs']}
-    #         data.append(entry)
-    #
-    # with open('word_vec_test.json', 'w') as f:
-    #     for entry in data:
-    #         f.write(json.dumps(entry) + '\n')
+    with open('../data/cb-small/instances.jsonl', 'r') as f:
+         data = []
+         for i in range(300):
+             obj = json.loads(f.readline())
+             entry = {'targetParagraphs':obj['targetParagraphs']}
+             data.append(entry)
+    
+    with open('word_vec_test.json', 'w') as f:
+         for entry in data:
+             f.write(json.dumps(entry) + '\n')
     vocab, emb = torchwordemb.load_glove_text('glove.6B.50d.txt')
-
+    #vocab = None
+    #emb = None
 
     with open('word_vec_test.json', 'r') as f:
-        inputs = [json.loads(f.readline())]
+        inputs = [json.loads(line) for line in f]
 
     get_word_ids(inputs, vocab, emb)
 
