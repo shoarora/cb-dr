@@ -10,8 +10,6 @@ class BayesianRidge(SKBase):
 
         self.num_epochs = 1
         self.batch_size = 25
-<<<<<<< Updated upstream
-=======
 
     def preprocess_inputs(self, inputs):
 
@@ -30,4 +28,3 @@ class BayesianRidge(SKBase):
 
     def predict(self, X):
         return self.model.predict(X)
->>>>>>> Stashed changes
