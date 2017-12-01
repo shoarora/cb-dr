@@ -79,13 +79,19 @@ def load_truth_json(path):
     return labels
 
 
-def write_tf_and_df(path):
+def write_tf_and_df(path, choice='text'):
     '''
     path to data dir
     number of times word appears in document / number of documents word appears
     tf [(id, word): count]
     idf [word: count]
     '''
+    choices = {
+        'post': 'postText',
+        'text': 'targetParagraphs',
+        'title': 'targetTitle'
+    }
+    choice_key = choices[choice]
     words_to_ids = {}
     tf = {}
     df = {}
@@ -96,7 +102,10 @@ def write_tf_and_df(path):
         id = inp['id']
         ids.append(id)
         counts = {}
-        for line in inp['postText']:
+        inp_to_read = inp[choice_key]
+        if choice == 'title':
+            inp_to_read = [inp_to_read]
+        for line in inp_to_read:
             for w in line.lower().split(' '):
                 # count occurrences of each word within a document
                 counts[w] = counts.get(w, 0) + 1
@@ -113,5 +122,5 @@ def write_tf_and_df(path):
         'term freqs': tf,
         'doc freqs': df
     }
-    with open(os.path.join(path, 'frequencies_text.json'), 'w') as f:
+    with open(os.path.join(path, 'frequencies_'+choice+'.json'), 'w') as f:
         f.write(json.dumps(results))
