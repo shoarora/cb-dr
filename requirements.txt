@@ -1,0 +1,12 @@
+cffi==1.11.2
+numpy==1.13.3
+olefile==0.44
+Pillow==4.3.0
+pycparser==2.18
+PyYAML==3.12
+scikit-learn==0.19.1
+scipy==1.0.0
+six==1.11.0
+torch==0.2.0.post3
+torchvision==0.1.9
+torchwordemb==0.0.8
