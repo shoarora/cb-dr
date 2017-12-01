@@ -89,15 +89,18 @@ def basic_feature_extraction(inputs):
     return new_inputs
 
 
-def tfidf_features(path, ids):
+#@Sho check this later. Choice represents the choice of what field you what to use (text, post, title)
+#freq_floor represented the required document frequency for a term to be included in the vocab
+def tfidf_features(path, ids, choice = 'text', freq_floor = 0):
     def load_file(filepath):
         with open(filepath) as f:
             return json.loads(f.read())
+    save_title = 'tfidf_features_' + choice + '_' + str(freq_floor) + '_features.json'
     try:
-        data = load_file(os.path.join(path, 'tfidf_features_text.json'))
+        data = load_file(os.path.join(path, save_title ))
     except IOError:
-        tfidf_feature_extraction(path)
-        data = load_file(os.path.join(path, 'tfidf_features_text.json'))
+        tfidf_feature_extraction(path,  save_title, choice, freq_floor)
+        data = load_file(os.path.join(path, save_title ))
     new_inputs = []
     for id in ids:
         new_inputs.append(data[str(id)])
@@ -105,8 +108,8 @@ def tfidf_features(path, ids):
     return new_inputs
 
 
-def tfidf_feature_extraction(path):
-    with open(os.path.join(path, 'frequencies_text.json'), 'r') as f:
+def tfidf_feature_extraction(path,  save_title, choice, freq_floor = 0):
+    with open(os.path.join(path, 'frequencies_' + choice + '.json'), 'r') as f:
         entry = json.load(f)
     ids = entry['ids']
     tf = entry['term freqs']
@@ -117,9 +120,12 @@ def tfidf_feature_extraction(path):
         counts = tf[id]
         for w in df:
             count = counts.get(w, 0)
+            if df[w] < freq_floor:
+                continue
             idf = -math.log(float(df[w]) / len(ids))
             tfidf_vocab.append(count*idf)
         new_inputs[str(id)] = tfidf_vocab
     count = 0
-    with open(os.path.join(path, 'tfidf_features_text.json'), 'w') as f:
+    print len(new_inputs[ids[0]])
+    with open(os.path.join(path, save_title), 'w') as f:
         f.write(json.dumps(new_inputs))
