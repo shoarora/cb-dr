@@ -9,11 +9,11 @@ from unidecode import unidecode as uni
 from nltk import word_tokenize
 
 def get_word_ids(inputs, vocab, num_words=None):
-    # def get_tokens(sent):
-    #     # convert all non-ascii to nearest ascii
-    #     sent = uni(sent)
-    #     tokens = word_tokenize(sent)
-    #     return tokens
+    def test(sent):
+        # convert all non-ascii to nearest ascii
+        sent = uni(sent)
+        tokens = word_tokenize(sent)
+        return tokens
 
     def get_tokens(inp):
         tokens = inp.lower().split(' ')
@@ -36,14 +36,19 @@ def get_word_ids(inputs, vocab, num_words=None):
 
     #new_inputs = []
     count = 0
-    for inp in inputs:
-        inp = ''.join(inp['targetParagraphs'])
-        # we reserve 4 indices for pad, unk, start, and end
-        # TODO actually figure out what to do with unknown keys
-        for word in get_tokens(inp):
-            if word in vocab:
-                count += 1
-        print 'original hits: %d' % count
+
+    def hit_test(inputs, vocab, func):
+        for inp in inputs:
+            inp = ''.join(inp['targetParagraphs'])
+            # we reserve 4 indices for pad, unk, start, and end
+            # TODO actually figure out what to do with unknown keys
+            for word in func(inp):
+                if word in vocab:
+                    count += 1
+            print 'original hits: %d' % count
+
+    hit_test(inputs, vocab, get_tokens)
+    hit_test(inputs, vocab, test)
 
     #     new_input = [vocab.get(word, 1) + 4 for word in get_tokens(inp)]
     #     for tok in get_tokens(inp):
