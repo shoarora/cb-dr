@@ -5,6 +5,17 @@ import torchwordemb
 import numpy as np
 from string import punctuation
 
+from unidecode import unidecode as uni
+from nltk import word_tokenize
+
+def get_word_ids_2(inputs, vocab, num_words=None):
+    def get_tokens(sent):
+        # convert all non-ascii to nearest ascii
+        sent = uni(sent)
+        tokens = word_tokenize(sent)
+        return tokens
+
+
 
 def get_word_ids(inputs, vocab, num_words=None):
     def get_tokens(inp):
@@ -129,3 +140,9 @@ def tfidf_feature_extraction(path,  save_title, choice, freq_floor = 0):
     print len(new_inputs[ids[0]])
     with open(os.path.join(path, save_title), 'w') as f:
         f.write(json.dumps(new_inputs))
+
+def main():
+
+
+if __name__ == '__main__':
+    main()
