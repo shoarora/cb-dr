@@ -154,13 +154,13 @@ def main():
     # with open('word_vec_test.json', 'w') as f:
     #     for entry in data:
     #         f.write(json.dumps(entry) + '\n')
-    vocab, emb = torchwordemb.load_glove_text('../data/glove.6B/glove.6B.50d.txt')
+    vocab, emb = torchwordemb.load_glove_text('glove.6B.50d.txt')
 
 
-    #with open('word_vec_test.json', 'r') as f:
-    #    inputs = [json.loads(f.readline())]
+    with open('word_vec_test.json', 'r') as f:
+        inputs = [json.loads(f.readline())]
 
-    #get_word_ids(inputs, vocab, emb)
+    get_word_ids(inputs, vocab, emb)
 
 
 
