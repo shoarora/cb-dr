@@ -8,16 +8,13 @@ from string import punctuation
 from unidecode import unidecode as uni
 from nltk import word_tokenize
 
-def get_word_ids_2(inputs, vocab, num_words=None):
-    def get_tokens(sent):
-        # convert all non-ascii to nearest ascii
-        sent = uni(sent)
-        tokens = word_tokenize(sent)
-        return tokens
-
-
-
 def get_word_ids(inputs, vocab, num_words=None):
+    # def get_tokens(sent):
+    #     # convert all non-ascii to nearest ascii
+    #     sent = uni(sent)
+    #     tokens = word_tokenize(sent)
+    #     return tokens
+
     def get_tokens(inp):
         tokens = inp.lower().split(' ')
         special_chars = set(punctuation)
@@ -37,31 +34,36 @@ def get_word_ids(inputs, vocab, num_words=None):
                 final_tokens.append(tok)
         return final_tokens
 
-    new_inputs = []
+    #new_inputs = []
+    count = 0
     for inp in inputs:
         inp = ''.join(inp['targetParagraphs'])
         # we reserve 4 indices for pad, unk, start, and end
         # TODO actually figure out what to do with unknown keys
-        new_input = [vocab.get(word, 1) + 4 for word in get_tokens(inp)]
-        for tok in get_tokens(inp):
-            if tok not in vocab:
-                print tok
-        new_input = [3] + [x for x in new_input if x is not 0]
-        if num_words:
-            if len(new_input) > num_words:
-                new_input = new_input[:num_words] + [4]
-            elif len(new_input) < num_words:
-                new_input += [4] + [0] * (num_words - len(new_input))
-            else:
-                new_input += [4]
-        new_inputs.append(np.array(new_input, dtype=np.int32))
-    return new_inputs
+        for word in get_tokens(inp):
+            if word in vocab:
+                count += 1
+        print 'original hits: %d' % count
+
+    #     new_input = [vocab.get(word, 1) + 4 for word in get_tokens(inp)]
+    #     for tok in get_tokens(inp):
+    #         if tok not in vocab:
+    #             print tok
+    #     new_input = [3] + [x for x in new_input if x is not 0]
+    #     if num_words:
+    #         if len(new_input) > num_words:
+    #             new_input = new_input[:num_words] + [4]
+    #         elif len(new_input) < num_words:
+    #             new_input += [4] + [0] * (num_words - len(new_input))
+    #         else:
+    #             new_input += [4]
+    #     new_inputs.append(np.array(new_input, dtype=np.int32))
+    # return new_inputs
 
 
 def load_glove_vecs(path):
     vocab, vec = torchwordemb.load_glove_text(path)
     return vocab, vec
-
 
 def average_paragraph_length(targetParagraphs):
     sum = 0.0
@@ -142,6 +144,24 @@ def tfidf_feature_extraction(path,  save_title, choice, freq_floor = 0):
         f.write(json.dumps(new_inputs))
 
 def main():
+    # with open('../data/cb-small/instances.jsonl', 'r') as f:
+    #     data = []
+    #     for i in range(100):
+    #         obj = json.loads(f.readline())
+    #         entry = {'targetParagraphs':obj['targetParagraphs']}
+    #         data.append(entry)
+    #
+    # with open('word_vec_test.json', 'w') as f:
+    #     for entry in data:
+    #         f.write(json.dumps(entry) + '\n')
+    vocab, emb = torchwordemb.load_glove_text('../data/glove.6B/glove.6B.50d.txt')
+
+
+    #with open('word_vec_test.json', 'r') as f:
+    #    inputs = [json.loads(f.readline())]
+
+    #get_word_ids(inputs, vocab, emb)
+
 
 
 if __name__ == '__main__':
