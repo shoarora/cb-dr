@@ -24,14 +24,15 @@ class RNN(TorchBase):
                           batch_first=True,
                           dropout=self.input_dropout_p,
                           bidirectional=self.bidirectional)
-        self.linear = nn.Linear(HIDDEN_SIZE, 1)  # TODO what is the actual dim of this
+        self.linear = nn.Linear(self.n_layers * HIDDEN_SIZE, 1)
 
     def preprocess_inputs(self, inputs, ids, path):
         new_inputs = get_word_ids(inputs, self.vocab, self.max_len)
         return new_inputs
 
     def forward(self, x):
-        x = self.embedding(x)
-        x, h = self.rnn(x)
-        print x.shape, h.shape
-        return self.linear(h)
+        x = self.embedding(x.long())
+        _, h = self.rnn(x)
+        h = h.permute(1, 0, 2)
+
+        return self.linear(h.view(-1, self.n_layers * HIDDEN_SIZE))
