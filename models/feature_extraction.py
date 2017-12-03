@@ -10,13 +10,13 @@ from unidecode import unidecode as uni
 from nltk import word_tokenize
 
 def get_word_ids(inputs, vocab, num_words=None):
-    def test(inp):
-        # convert all non-ascii to nearest ascii
+    def get_tokens(inp):
         tokens = []
         for sent in inp['targetParagraphs']:
+            # convert all non-ascii to nearest ascii
             sent = uni(sent).lower()
-            for token in word_tokenize(sent):
 
+            for token in word_tokenize(sent):
                 # if token is the beginning or end of a quotation
                 # drop the quotation. however, 's is OK.
                 if token != "'s":
@@ -24,72 +24,26 @@ def get_word_ids(inputs, vocab, num_words=None):
                         token = token[1:]
                     if len(token) > 1 and token[-1] == "'":
                         token = token[:-1]
-                        
                 tokens.append(token)
         return tokens
 
-    def get_tokens(inp):
-        inp = ''.join(inp['targetParagraphs'])
-        #inp = inp['targetParagraphs'][0]
-        tokens = inp.lower().split(' ')
-        special_chars = set(punctuation)
-        special_chars.add("'s")
-        final_tokens = []
-        for tok in tokens:
-            has_special = False
-            for c in special_chars:
-                if c in tok:
-                    has_special = True
-                    toks = tok.split(c)
-                    for t in toks:
-                        final_tokens.append(t)
-                        final_tokens.append(c)
-                    del final_tokens[-1]
-            if not has_special:
-                final_tokens.append(tok)
-        return final_tokens
-
-    # #new_inputs = []
-    # count = 0
-
-    def hit_test(inputs, vocab, func):
-        misses = []
-        hits = []
-        for inp in inputs:
-            # we reserve 4 indices for pad, unk, start, and end
-            # TODO actually figure out what to do with unknown keys
-            for word in func(inp):
-                if word in vocab:
-                    hits.append(word)
-                else:
-                    misses.append(word)
-        print 'hits: %d' % len(hits)
-        print 'misses: %d' % len(misses)
-        return (hits, misses)
-
-    hits, misses = hit_test(inputs, vocab, get_tokens)
-    t_hits, t_misses = hit_test(inputs, vocab, test)
-
-    print filter(lambda x: x not in t_misses, misses)
-    print
-    
-    print t_misses
-    
-
-    #     new_input = [vocab.get(word, 1) + 4 for word in get_tokens(inp)]
-    #     for tok in get_tokens(inp):
-    #         if tok not in vocab:
-    #             print tok
-    #     new_input = [3] + [x for x in new_input if x is not 0]
-    #     if num_words:
-    #         if len(new_input) > num_words:
-    #             new_input = new_input[:num_words] + [4]
-    #         elif len(new_input) < num_words:
-    #             new_input += [4] + [0] * (num_words - len(new_input))
-    #         else:
-    #             new_input += [4]
-    #     new_inputs.append(np.array(new_input, dtype=np.int32))
-    # return new_inputs
+    new_inputs = []
+    count = 0
+    for inp in inputs:
+        new_input = [vocab.get(word, 1) + 4 for word in get_tokens(inp)]
+        for tok in get_tokens(inp):
+            if tok not in vocab:
+                print tok
+        new_input = [3] + [x for x in new_input if x is not 0]
+        if num_words:
+            if len(new_input) > num_words:
+                new_input = new_input[:num_words] + [4]
+            elif len(new_input) < num_words:
+                new_input += [4] + [0] * (num_words - len(new_input))
+            else:
+                new_input += [4]
+        new_inputs.append(np.array(new_input, dtype=np.int32))
+    return new_inputs
 
 
 def load_glove_vecs(path):
@@ -181,7 +135,7 @@ def main():
              obj = json.loads(f.readline())
              entry = {'targetParagraphs':obj['targetParagraphs']}
              data.append(entry)
-    
+
     with open('word_vec_test.json', 'w') as f:
          for entry in data:
              f.write(json.dumps(entry) + '\n')
