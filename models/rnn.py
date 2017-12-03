@@ -11,7 +11,7 @@ class RNN(TorchBase):
         super(RNN, self).__init__()
         self.load_glove()
 
-        # TODO how to deal with variable lengths, and max length
+        # TODO how to deal with variable lengths
 
         self.max_len = 300
         self.input_dropout_p = 0.2
@@ -25,7 +25,6 @@ class RNN(TorchBase):
                           dropout=self.input_dropout_p,
                           bidirectional=self.bidirectional)
         self.linear = nn.Linear(HIDDEN_SIZE, 1)  # TODO what is the actual dim of this
-        # TODO start and end tokens??
 
     def preprocess_inputs(self, inputs, ids, path):
         new_inputs = get_word_ids(inputs, self.vocab)
@@ -34,4 +33,5 @@ class RNN(TorchBase):
     def forward(self, x):
         x = self.embedding(x)
         x, h = self.rnn(x)
+        print x.shape, h.shape
         return self.linear(h)
