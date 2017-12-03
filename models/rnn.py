@@ -27,7 +27,7 @@ class RNN(TorchBase):
         self.linear = nn.Linear(HIDDEN_SIZE, 1)  # TODO what is the actual dim of this
 
     def preprocess_inputs(self, inputs, ids, path):
-        new_inputs = get_word_ids(inputs, self.vocab)
+        new_inputs = get_word_ids(inputs, self.vocab, self.max_len)
         return new_inputs
 
     def forward(self, x):
