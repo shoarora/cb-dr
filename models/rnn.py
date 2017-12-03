@@ -11,13 +11,10 @@ class RNN(TorchBase):
         super(RNN, self).__init__()
         self.load_glove()
 
-        # TODO how to deal with variable lengths
-
         self.max_len = 300
         self.input_dropout_p = 0.2
         self.n_layers = 4
         self.bidirectional = False
-        self.variable_lengths = True
         self.rnn = nn.GRU(INPUT_DIM,
                           HIDDEN_SIZE,
                           self.n_layers,
@@ -34,5 +31,5 @@ class RNN(TorchBase):
         x = self.embedding(x.long())
         _, h = self.rnn(x)
         h = h.permute(1, 0, 2)
-
-        return self.linear(h.view(-1, self.n_layers * HIDDEN_SIZE))
+        h = h.contiguous().view(-1, self.n_layers * HIDDEN_SIZE)
+        return self.linear(h)
