@@ -10,10 +10,20 @@ from unidecode import unidecode as uni
 from nltk import word_tokenize
 
 
-def get_word_ids(inputs, vocab, num_words=None):
+def get_word_ids(inputs, vocab, num_words=None, target='text'):
+    targets = {
+        'text': 'targetParagraphs',
+        'post': 'postText',
+        'title': 'targetTitle'
+    }
+    target_key = targets[target]
+
     def get_tokens(inp):
         tokens = []
-        for sent in inp['targetParagraphs']:
+        inp_target = inp[target_key]
+        if target == 'title':
+            inp_target = [inp_target]
+        for sent in inp_target:
             # convert all non-ascii to nearest ascii
             sent = uni(sent).lower()
 

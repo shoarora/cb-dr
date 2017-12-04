@@ -22,6 +22,8 @@ def get_parser():
     parser.add_argument('--model', choices=sk_model_options.keys())
     # parser.add_argument('--cuda', action='store_true')
     parser.add_argument('--sess_name')
+    parser.add_argument('--choice', choices={'post', 'text', 'title'})
+    parser.add_argument('--freq_floor', type=int)
     return parser
 
 
@@ -56,7 +58,7 @@ def main():
     args = parser.parse_args()
 
     # load model.  model_options defined in models/__init__.py
-    model = sk_model_options[args.model]()
+    model = sk_model_options[args.model](args.choice, args.freq_floor)
 
     # load data
     data_path = data_paths[args.dataset]
