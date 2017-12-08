@@ -12,3 +12,6 @@ python sk_main.py --dataset big --model svm --choice text --freq_floor 100 --ses
 
 echo 'small-svm-post-3'
 python sk_main.py --dataset small --model svm --choice post --freq_floor 3 --sess_name small-svm-post-3
+
+echo 'small-svm-text-10'
+python sk_main.py --dataset small --model svm --choice text --freq_floor 10 --sess_name small-svm-text-10
