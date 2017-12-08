@@ -4,6 +4,23 @@ don't read clickbait
 a clickbait classifier inspired by the [Clickbait Challenge 2017] (http://www.clickbait-challenge.org/)
 implemented in `sklearn` and `pytorch`
 
+
+
+## ideas
+-   rnn grid [sho]
+-   balanced datasets [peter]
+-   classify instead
+-   glove dims
+-   round 0-1 inputs
+-   qrnn
+-   cnn parameters [jeff]
+-   pnet [sho]
+-   weight decay [jeff]
+-   title [peter]
+
+
+
+
 ## TODOs
 -  improve tokenization
 -  use 2d weights https://nbviewer.jupyter.org/github/DSKSD/DeepNLP-models-Pytorch/blob/master/notebooks/04.Window-Classifier-for-NER.ipynb
