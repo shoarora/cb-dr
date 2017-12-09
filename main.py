@@ -15,6 +15,7 @@ data_paths = {
     'small': 'data/cb-small',
     'big': 'data/cb-big'
 }
+device_num = 0
 
 
 def get_parser():
@@ -30,6 +31,7 @@ def get_parser():
     parser.add_argument('--model', choices=model_options.keys())
     parser.add_argument('--cuda', action='store_true')
     parser.add_argument('--sess_name')
+    parser.add_argument('--gpu_num', type=int)
     return parser
 
 
@@ -90,7 +92,7 @@ def train(model, train_loader, optimizer, criterion, cuda):
 
         inputs, labels = Variable(inputs.float()), Variable(labels.float())
         if torch.cuda.is_available() and cuda:
-            inputs, labels = inputs.cuda(), labels.cuda()
+            inputs, labels = inputs.cuda(device_num), labels.cuda(device_num)
 
         optimizer.zero_grad()
         outputs = model(inputs)
@@ -124,7 +126,7 @@ def evaluate(model, loader, criterion, cuda, results_dir, name, truth_file):
 
         inputs, labels = Variable(inputs.float()), Variable(labels.float())
         if torch.cuda.is_available() and cuda:
-            inputs, labels = inputs.cuda(), labels.cuda()
+            inputs, labels = inputs.cuda(device_num), labels.cuda(device_num)
 
         outputs = model(inputs)
         loss = criterion(outputs, labels)
@@ -171,6 +173,9 @@ if __name__ == '__main__':
     parser = get_parser()
     args = parser.parse_args()
 
+    if args.gpu_num is not None:
+        device_num = args.gpu_num
+
     # load model.  model_options defined in models/__init__.py
     model = model_options[args.model]()
     best_dev_acc = 0.0
@@ -179,7 +184,7 @@ if __name__ == '__main__':
     # move to cuda
     cuda = args.cuda
     if torch.cuda.is_available() and cuda:
-        model.cuda()
+        model.cuda(device_num)
 
     # init training optimizer and criterion
     parameters = filter(lambda p: p.requires_grad, model.parameters())

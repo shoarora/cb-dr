@@ -9,10 +9,21 @@ import re
 from unidecode import unidecode as uni
 from nltk import word_tokenize
 
-def get_word_ids(inputs, vocab, num_words=None):
+
+def get_word_ids(inputs, vocab, num_words=None, target='text'):
+    targets = {
+        'text': 'targetParagraphs',
+        'post': 'postText',
+        'title': 'targetTitle'
+    }
+    target_key = targets[target]
+
     def get_tokens(inp):
         tokens = []
-        for sent in inp['targetParagraphs']:
+        inp_target = inp[target_key]
+        if target == 'title':
+            inp_target = [inp_target]
+        for sent in inp_target:
             # convert all non-ascii to nearest ascii
             sent = uni(sent).lower()
 
@@ -28,20 +39,22 @@ def get_word_ids(inputs, vocab, num_words=None):
         return tokens
 
     new_inputs = []
-    count = 0
     for inp in inputs:
-        new_input = [vocab.get(word, 1) + 4 for word in get_tokens(inp)]
-        for tok in get_tokens(inp):
-            if tok not in vocab:
-                print tok
-        new_input = [3] + [x for x in new_input if x is not 0]
+        # need to increase default glove indices by 4 to make room
+        # for special tokens [pad, unk, start, end]
+        # we want the default for when a word isn't found to be 1
+        # setting the default to -3 is gross, but this keeps runtime down
+        new_input = [vocab.get(word, -3) + 4 for word in get_tokens(inp)]
+
+        # add index for start token
+        new_input = [2] + [x for x in new_input]
+
+        # adjust to be num_words and add end token
         if num_words:
-            if len(new_input) > num_words:
-                new_input = new_input[:num_words] + [4]
+            if len(new_input) >= num_words:
+                new_input = new_input[:num_words - 1] + [3]
             elif len(new_input) < num_words:
-                new_input += [4] + [0] * (num_words - len(new_input))
-            else:
-                new_input += [4]
+                new_input += [3] + [0] * (num_words - len(new_input) - 1)
         new_inputs.append(np.array(new_input, dtype=np.int32))
     return new_inputs
 
