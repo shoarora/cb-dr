@@ -31,7 +31,7 @@ class ParallelNet(TorchBase):
 
         self.combine = nn.Linear(HIDDEN_SIZE * 2 * self.net1.n_layers, HIDDEN_SIZE * self.net1.n_layers)
         self.activation = nn.Tanh()
-        self.fc = nn.Linear(HIDDEN_SIZE * 3  * self.net1.n_layers, HIDDEN_SIZE)
+        self.fc = nn.Linear(HIDDEN_SIZE * 3  * self.net1.n_layers, 1)
 
     def preprocess_inputs(self, inputs, ids, path):
         post_inputs = get_word_ids(inputs, self.vocab,
