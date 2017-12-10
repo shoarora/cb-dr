@@ -40,7 +40,7 @@ class ParallelNet(TorchBase):
     def forward(self, x):
         x, y = torch.chunk(x, 2, dim=1)
         x = torch.squeeze(x)
-        y = torch.sqeeze(x)
+        y = torch.squeeze(x)
 
         x = self.embedding(x.long())  # [batch x num_words x glove]
         y = self.embedding(y.long())
