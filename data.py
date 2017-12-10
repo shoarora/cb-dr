@@ -18,6 +18,11 @@ class cbDataset(Dataset):
     def __getitem__(self, i):
         return self.ids[i], self.inputs[i], self.labels[i]
 
+def rearrange(arr, index):
+    new_arr = [None] * len(arr)
+    for element, i in zip(arr, index):
+        new_arr[i] = element
+    return new_arr
 
 def get_datasets(batch_size, path, preprocess_f, sk=False):
     def process_inputs(inputs, labels, start_i, end_i):
@@ -26,10 +31,14 @@ def get_datasets(batch_size, path, preprocess_f, sk=False):
         ids = np.array([inp['id'] for inp in inputs], dtype=np.int64)
         return ids, preprocess_f(inputs, ids, path), labels
 
+    num_entries = len(inputs)
+    index = np.random.permutation(range(num_entries))
+
     inputs = load_instances_json(path)
     labels = load_truth_json(path)
 
-    num_entries = len(inputs)
+    inputs = rearrange(inputs, index)
+    labels = rearrange(labels, index)
 
     train_ids, train_inputs, train_labels = process_inputs(inputs,
                                                            labels,
@@ -70,14 +79,17 @@ def load_instances_json(path):
     return inputs
 
 
-def load_truth_json(path):
+def load_truth_json(path, classify=False):
     labels = []
     with open(os.path.join(path, 'truth.jsonl')) as f:
         for line in f:
             entry = json.loads(line)
-            labels.append(entry['truthMean'])
+            if classify:
+                label = 1 if entry['truthMedian'] > 0.5 else 0
+                labels.append(label)
+            else:
+                labels.append(entry['truthMedian'])
     return labels
-
 
 def write_tf_and_df(path, choice='text'):
     '''

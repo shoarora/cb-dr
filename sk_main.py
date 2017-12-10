@@ -7,6 +7,7 @@ from data import get_datasets
 import numpy as np
 
 data_paths = {
+    'mini': 'data/cb-mini',
     'small': 'data/cb-small',
     'big': 'data/cb-big'
 }
@@ -18,7 +19,7 @@ def get_parser():
     parser = argparse.ArgumentParser()
     # parser.add_argument('--train', action='store_true')
     # parser.add_argument('--eval_only', action='store_true')
-    parser.add_argument('--dataset', choices={'small', 'big'})
+    parser.add_argument('--dataset', choices={'mini', 'small', 'big'})
     parser.add_argument('--model', choices=sk_model_options.keys())
     # parser.add_argument('--cuda', action='store_true')
     parser.add_argument('--sess_name')
@@ -72,7 +73,7 @@ def main():
     results_dir = os.path.join(CKPT, args.sess_name, 'results')
     mkdir(results_dir)
     evaluate(model, dev_set, results_dir, 'dev', truth_file)
-    evaluate(model, test_set, results_dir, 'test', truth_file)
+    #evaluate(model, test_set, results_dir, 'test', truth_file)
 
 
 if __name__ == "__main__":

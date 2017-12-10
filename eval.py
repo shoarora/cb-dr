@@ -50,7 +50,7 @@ classification_measures = {'Accuracy': skm.accuracy_score,
 def evaluate_results(truth_file, predictions_file, output_file):
     try:
         with open(truth_file, "r") as truth_file:
-            truth_dict = {json.loads(s)['id']: json.loads(s)['truthMean']
+            truth_dict = {json.loads(s)['id']: json.loads(s)['truthMedian']
                           for s in truth_file.readlines()}
 
             truth_file.seek(0)
