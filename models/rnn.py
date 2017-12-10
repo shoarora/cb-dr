@@ -27,7 +27,8 @@ class RNN(TorchBase):
                           batch_first=True,
                           dropout=self.input_dropout_p,
                           bidirectional=self.bidirectional)
-        self.linear = nn.Linear(self.n_layers * hidden_size, 1)
+        self.fc_dim = self.n_layers * hidden_size
+        self.linear = nn.Linear(self.fc_dim, 1)
 
     def preprocess_inputs(self, inputs, ids, path):
         new_inputs = get_word_ids(inputs, self.vocab, self.max_len)

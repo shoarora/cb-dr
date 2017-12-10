@@ -4,6 +4,7 @@ from torch import nn
 from pytorchbase import TorchBase
 from feature_extraction import get_word_ids
 from rnn import RNN
+from cnn import CNN
 
 INPUT_DIM = 300
 HIDDEN_SIZE = 256
@@ -21,20 +22,21 @@ class ParallelNet(TorchBase):
         self.load_glove()
         self.num_epochs = 100
 
-        self.net1 = RNN(input_dim=INPUT_DIM, hidden_size=HIDDEN_SIZE,
-                        load_glove=False)
+        self.net1 = CNN(load_glove=False)
         self.net2 = RNN(input_dim=INPUT_DIM, hidden_size=HIDDEN_SIZE,
                         load_glove=False)
 
-        self.net1.max_len = self.num_words
+        self.net1.num_words = self.num_words
         self.net1.glove_dim = INPUT_DIM
         self.net2.max_len = self.num_words
         self.net2.glove_dim = INPUT_DIM
 
-        self.combine = nn.Linear(HIDDEN_SIZE * 2 * self.net1.n_layers,
-                                 HIDDEN_SIZE * self.net1.n_layers)
+        self.combine_dim = 256
+        self.combine = nn.Linear(self.net1.fc_dim + self.net2.fc_dim,
+                                 self.combine_dim)
         self.activation = nn.Tanh()
-        self.fc = nn.Linear(HIDDEN_SIZE * 3 * self.net1.n_layers, 1)
+        self.fc_dim = self.net1.fc_dim + self.net2.fc_dim + self.combine_dim
+        self.fc = nn.Linear(self.fc_dim, 1)
 
     def preprocess_inputs(self, inputs, ids, path):
         post_inputs = get_word_ids(inputs, self.vocab,
