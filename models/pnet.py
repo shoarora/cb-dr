@@ -29,17 +29,18 @@ class ParallelNet(TorchBase):
         self.net2.max_len = self.num_words
         self.net2.glove_dim = INPUT_DIM
 
-        self.combine = nn.Linear(HIDDEN_SIZE * 2, HIDDEN_SIZE)
+        self.combine = nn.Linear(HIDDEN_SIZE * 2 * self.net1.n_layers, HIDDEN_SIZE)
         self.activation = nn.Tanh()
-        self.fc = nn.Linear(HIDDEN_SIZE * 3, HIDDEN_SIZE)
+        self.fc = nn.Linear(HIDDEN_SIZE * 3  * self.net1.n_layers, HIDDEN_SIZE)
 
     def preprocess_inputs(self, inputs, ids, path):
         post_inputs = get_word_ids(inputs, self.vocab,
                                    self.num_words, target='post')
         title_inputs = get_word_ids(inputs, self.vocab,
                                     self.num_words, target='title')
-        # return zip(post_inputs, title_inputs)  # TODO adjust dataloader to accept this OR just pass them as 2d
-        new_inputs = [np.array(x, dtype=np.int32) for x in zip(post_inputs, title_inputs)]
+        # return zip(post_inputs, title_inputs)
+        new_inputs = [np.array(x, dtype=np.int32)
+                      for x in zip(post_inputs, title_inputs)]
         return new_inputs
 
     def forward(self, x):
@@ -54,6 +55,6 @@ class ParallelNet(TorchBase):
 
         x = self.net1.extract_features(x)
         y = self.net2.extract_features(y)
-        z = self.combine(torch.cat([x, y], 0))
+        z = self.combine(torch.cat([x, y], 1))
         z = self.activation(z)
-        return self.fc(torch.cat([x, y, z], 0))
+        return self.fc(torch.cat([x, y, z], 1))
