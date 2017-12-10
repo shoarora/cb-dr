@@ -17,12 +17,17 @@ class ParallelNet(TorchBase):
     def __init__(self):
         super(ParallelNet, self).__init__()
         self.num_words = 300
+        self.glove_dim = INPUT_DIM
         self.load_glove()
         self.num_epochs = 100
-        # TODO init nets
-        # TODO init fc
-        self.net1 = RNN(input_dim=INPUT_DIM, hidden_size=HIDDEN_SIZE)
-        self.net2 = RNN(input_dim=INPUT_DIM, hidden_size=HIDDEN_SIZE)
+
+        self.net1 = RNN(input_dim=INPUT_DIM, hidden_size=HIDDEN_SIZE, load_glove=False)
+        self.net2 = RNN(input_dim=INPUT_DIM, hidden_size=HIDDEN_SIZE, load_glove=False)
+
+        self.net1.max_len = self.num_words
+        self.net1.glove_dim = INPUT_DIM
+        self.net2.max_len = self.num_words
+        self.net2.glove_dim = INPUT_DIM
 
         self.combine = nn.Linear(HIDDEN_SIZE * 2, HIDDEN_SIZE)
         self.activation = nn.Tanh()
@@ -42,7 +47,10 @@ class ParallelNet(TorchBase):
         x = torch.squeeze(x)
         y = torch.squeeze(x)
         print x.size(), y.size()
-        # TODO refactor to not extract glove multiple times
+
+        x = self.embedding(x.long())
+        y = self.embedding(y.long())
+
         x = self.net1.extract_features(x)
         y = self.net2.extract_features(x)
         z = self.combine(torch.concat([x, y], 0))
