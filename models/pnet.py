@@ -34,7 +34,7 @@ class ParallelNet(TorchBase):
         title_inputs = get_word_ids(inputs, self.vocab,
                                     self.num_words, target='title')
         # return zip(post_inputs, title_inputs)  # TODO adjust dataloader to accept this OR just pass them as 2d
-        new_inputs = [np.array(x, type=np.int32) for x in zip(post_inputs, title_inputs)]
+        new_inputs = [np.array(x, dtype=np.int32) for x in zip(post_inputs, title_inputs)]
         return new_inputs
 
     def forward(self, x):
