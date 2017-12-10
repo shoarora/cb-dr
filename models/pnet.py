@@ -17,19 +17,13 @@ class ParallelNet(TorchBase):
 
     def __init__(self):
         super(ParallelNet, self).__init__()
-        self.num_words = 300
+        self.num_words = 100
         self.glove_dim = INPUT_DIM
         self.load_glove()
         self.num_epochs = 100
 
-        self.net1 = CNN(load_glove=False)
-        self.net2 = RNN(input_dim=INPUT_DIM, hidden_size=HIDDEN_SIZE,
-                        load_glove=False)
-
-        self.net1.num_words = self.num_words
-        self.net1.glove_dim = INPUT_DIM
-        self.net2.max_len = self.num_words
-        self.net2.glove_dim = INPUT_DIM
+        self.net1 = self.init_CNN()
+        self.net2 = self.init_RNN()
 
         self.combine_dim = 256
         self.combine = nn.Linear(self.net1.fc_dim + self.net2.fc_dim,
@@ -37,6 +31,19 @@ class ParallelNet(TorchBase):
         self.activation = nn.Tanh()
         self.fc_dim = self.net1.fc_dim + self.net2.fc_dim + self.combine_dim
         self.fc = nn.Linear(self.fc_dim, 1)
+
+    def init_CNN(self):
+        net = CNN(load_glove=False)
+        net.num_words = self.num_words
+        net.glove_dim = INPUT_DIM
+        return net
+
+    def init_RNN(self):
+        net = RNN(input_dim=INPUT_DIM, hidden_size=HIDDEN_SIZE,
+                  load_glove=False)
+        net.max_len = self.num_words
+        net.glove_dim = INPUT_DIM
+        return net
 
     def preprocess_inputs(self, inputs, ids, path):
         post_inputs = get_word_ids(inputs, self.vocab,
