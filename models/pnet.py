@@ -29,7 +29,7 @@ class ParallelNet(TorchBase):
         self.net2.max_len = self.num_words
         self.net2.glove_dim = INPUT_DIM
 
-        self.combine = nn.Linear(HIDDEN_SIZE * 2 * self.net1.n_layers, HIDDEN_SIZE)
+        self.combine = nn.Linear(HIDDEN_SIZE * 2 * self.net1.n_layers, HIDDEN_SIZE * self.net1.n_layers)
         self.activation = nn.Tanh()
         self.fc = nn.Linear(HIDDEN_SIZE * 3  * self.net1.n_layers, HIDDEN_SIZE)
 
