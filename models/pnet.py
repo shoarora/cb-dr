@@ -16,7 +16,7 @@ class ParallelNet(TorchBase):
 
     def __init__(self):
         super(ParallelNet, self).__init__()
-        self.num_words = 100
+        self.num_words = 300
         self.load_glove()
         self.num_epochs = 100
         # TODO init nets
