@@ -53,7 +53,7 @@ class ParallelNet(TorchBase):
         print x.size(), y.size()
 
         x = self.net1.extract_features(x)
-        y = self.net2.extract_features(x)
+        y = self.net2.extract_features(y)
         z = self.combine(torch.concat([x, y], 0))
         z = self.activation(z)
         return self.fc(torch.concat([x, y, z], 0))
