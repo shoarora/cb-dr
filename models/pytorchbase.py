@@ -11,7 +11,6 @@ class TorchBase(nn.Module):
         self.num_epochs = 10
         self.batch_size = 25
         self.glove_dim = 300
-        self.glove_path = 'data/glove/glove.6B.'+str(self.glove_dim)+'d.txt'
 
     def preprocess_inputs(self, inputs, ids, path):
         return np.array(tfidf_features(path, ids))
@@ -20,6 +19,7 @@ class TorchBase(nn.Module):
         raise NotImplemented
 
     def load_glove(self):
+        self.glove_path = 'data/glove/glove.6B.'+str(self.glove_dim)+'d.txt'
         self.vocab, self.glove = load_glove_vecs(self.glove_path)
         size = self.glove.size()
 
