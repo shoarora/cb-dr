@@ -1,3 +1,5 @@
+from __future__ import division
+
 import json
 import os
 import math
@@ -8,6 +10,10 @@ from string import punctuation
 import re
 from unidecode import unidecode as uni
 from nltk import word_tokenize
+
+import spacy
+from spacy.tokenizer import Tokenizer
+from spacy.pipeline import Tagger
 
 
 def get_word_ids(inputs, vocab, num_words=None, target='text'):
@@ -140,6 +146,210 @@ def tfidf_feature_extraction(path,  save_title, choice, freq_floor = 0):
     print len(new_inputs[ids[0]])
     with open(os.path.join(path, save_title), 'w') as f:
         f.write(json.dumps(new_inputs))
+
+# function name is slightly misleading. technically, it checks if the
+# first word is a number OR if first NAMED ENTITY is a number
+# I think this method is actually more robust than just checking
+# if the first word is a number.
+def is_first_word_number(parsed):
+    if parsed[0].pos_ == 'NUM':
+        return True
+    if len(parsed.ents) > 0 and \
+            parsed.ents[0].label_ in ['PERCENT', 'MONEY', 'QUANTITY', 'ORDINAL', 'CARDINAL']:
+        return True
+    return False
+
+def match(parsed, window, condition):
+    count = 0
+    for i in range(len(parsed)):
+        tokens = parsed[i:i+window]
+        if len(tokens) < window:
+            continue
+        if condition(tokens):
+            count += 1
+    return count
+
+def match_this_NN(parsed):
+    def this_NN(tokens):
+        return tokens[0].text.lower() in ['this', 'these'] and \
+               tokens[1].tag_ == 'NN'
+    return match(parsed, window=2, condition=this_NN)
+
+def match_NNP_period(parsed):
+    def NNP_period(tokens):
+        return tokens[0].tag_ == 'NNP' and \
+               tokens[1].text == '.'
+    return match(parsed, window=2, condition=NNP_period)
+
+def match_NUM_NP_VB(parsed):
+    def NUM_NP_VB(tokens):
+        if tokens[0].pos_ == 'NUM' and \
+               tokens[1].pos_ == 'NOUN' and \
+               tokens[2].pos_ == 'VERB':
+            print tokens
+            return True
+        else:
+            return False
+    return match(parsed, window=3, condition=NUM_NP_VB)
+
+# usage: match_tags(parsed_post, ['NNP', 'VBZ']) --> # of NNP VBZ matches
+def match_tags(parsed, tags):
+    def cond(tokens):
+        return all(token.tag_ == tag for token, tag in zip(tokens, tags))
+    return match(parsed, window=len(tags), condition=cond)
+
+def top_60_feature_extraction(inputs):
+    nlp = spacy.load('en')
+    desired_labels = ['PERSON', 'NORP', 'ORG',
+                      'GPE', 'LOC', 'PRODUCT', 'EVENT',
+                      'WORK_OF_ART', 'LAW', 'LANGUAGE']
+    tagger = Tagger(nlp.vocab, model=True)
+
+    features = []
+    for inp in inputs:
+        postStr = ' '.join(inp['postText'])
+
+        parsed_post = nlp(postStr)
+        parsed_title = nlp(inp['targetTitle'])
+        keywords = [kw.strip().lower() for kw in inp['targetKeywords'].split(',')]
+
+        # tokenize (also by punctuation)
+        tokens_by_punc = word_tokenize(postStr)
+
+        # get parts of speech
+        TAG = [token.tag_ for token in parsed_post]
+
+        # get word lengths in post
+        lens = [len(token.text) for token in parsed_post]
+
+        print keywords
+        print postStr
+        print len(filter(lambda x: x in postStr.lower(), keywords))
+
+        features.append([
+            # 1 number of proper nouns
+            match_tags(parsed_post, ['NNP']),
+            # 2 readability of target paragraphs
+
+            # 3 number of tokens
+            len(tokens_by_punc),
+            # 4 word length of post text
+            len(parsed_post),
+            # 5 POS 2-gram NNP NNP
+            match_tags(parsed_post, ['NNP', 'NNP']),
+            # 6 Whether the post starts with number
+            1 if is_first_word_number(parsed_post) else 0,
+            # 7 Average length of words in post
+            np.mean(lens),
+            # 8 Number of Prepositions / Subordinating Conjunction
+            match_tags(parsed_post, ['IN']),
+            # 9 POS 2-gram NNP 3rd person singular present Verb
+            match_tags(parsed_post, ['NNP', 'VBZ']),
+            # 10 POS 2-gram IN NNP
+            match_tags(parsed_post, ['IN', 'NNP']),
+            # 11 length of the longest word in post text
+            max(lens),
+            # 12 number of wh-adverb
+            match_tags(parsed_post, ['WRB']),
+            # 13 count POS pattern WRB
+
+            # 14 number of single/mass nouns
+            match_tags(parsed_post, ['NN']),
+            # 15 count POS pattern NN
+
+            # 16 whether the post text starts with 5W1H
+            1 if parsed_post[0].tag_ in ['WDT', 'WP', 'WP$', 'WRB'] else 0,
+            # 17 Whether exist Question Mark
+            1 if '?' in postStr else 0,
+            # 18 similarity between post and target title
+            parsed_post.similarity(parsed_title),
+            # 19 Count POS pattern this/these NN
+            match_this_NN(parsed_post),
+            # 20 Count POS pattern PRP
+
+            # 21 Number of PRP
+            match_tags(parsed_post, ['PRP']),
+            # 22 Number of VBZ
+            match_tags(parsed_post, ['VBZ']),
+            # 23 POS 3-gram NNP NNP VBZ
+            match_tags(parsed_post, ['NNP', 'NNP', 'VBZ']),
+            # 24 POS 2-gram NN IN
+            match_tags(parsed_post, ['NN', 'IN']),
+            # 25 POS 3-gram NN IN NNP
+            match_tags(parsed_post, ['NN', 'IN', 'NNP']),
+            # 26 ratio of stop words in posttext
+            len(filter(lambda x: x.is_stop, parsed_post)) / len(parsed_post),
+            # 27 POS 2-gram NNP
+            match_NNP_period(parsed_post),
+            # 28 POS 2-gram PRP VBP
+            match_tags(parsed_post, ['PRP', 'VBP']),
+            # 29 Count POS pattern WP
+
+            # 30 Number of WP
+            match_tags(parsed_post, ['WP']),
+            # 31 Count POS pattern DT
+
+            # 32 Number of DT
+            match_tags(parsed_post, ['DT']),
+            # 33 POS 2-gram NNP IN
+            match_tags(parsed_post, ['NNP', 'IN']),
+            # 34 POS 3-gram IN NNP NNP
+            match_tags(parsed_post, ['IN', 'NNP', 'NNP']),
+            # 35 Number of POS
+            match_tags(parsed_post, ['POS']),
+            # 36 POS 2-gram IN IN
+            match_tags(parsed_post, ['IN', 'IN']),
+            # 37 Match between keywords and post
+            len(filter(lambda x: x in postStr.lower(), keywords)),
+            # 38 Number of ','
+            len(filter(lambda x: x == ',', postStr)),
+            # 39 POS 2-gram NNP NNS
+            match_tags(parsed_post, ['NNP', 'NNS']),
+            # 40 POS 2-gram IN JJ
+            match_tags(parsed_post, ['IN', 'JJ']),
+            # 41 POS 2-gram NNP POS
+            match_tags(parsed_post, ['NNP', 'POS']),
+            # 42 WDT
+            match_tags(parsed_post, ['WDT']),
+            # 43 Count POS pattern WDT
+
+            # 44 POS 2-gram NN NN
+            match_tags(parsed_post, ['NN', 'NN']),
+            # 45 POS 2-gram NN NNP
+            match_tags(parsed_post, ['NN', 'NNP']),
+            # 46 POS 2-gram NNP VBD
+            match_tags(parsed_post, ['NN', 'VBD']),
+            # 47 Similarity between post and target paragraphs
+
+            # 48 POS pattern RB
+            match_tags(parsed_post, ['RB']),
+            # 49 Number of RB
+
+            # 50 POS 3-gram NNP NNP NNP
+            match_tags(parsed_post, ['NNP', 'NNP', 'NNP']),
+            # 51 POS 3-gram NNP NNP NN
+            match_tags(parsed_post, ['NNP', 'NNP', 'NN']),
+            # 52 Readability of target paragraphs
+
+            # 53 Number of RBS
+            match_tags(parsed_post, ['RBS']),
+            # 54 Number of VBN
+            match_tags(parsed_post, ['VBN']),
+            # 55 POS 2-gram VBN IN
+            match_tags(parsed_post, ['VBN', 'IN']),
+            # 56 whether exist NUMBER NP VB
+            match_NUM_NP_VB(parsed_post),
+            # 57 POS 2-gram JJ NNP
+            match_tags(parsed_post, ['JJ', 'NNP']),
+            # 58 POS 3-gram NNP NN NN
+            match_tags(parsed_post, ['NNP', 'NN', 'NN']),
+            # 59 POS 2-gram DT NN
+            match_tags(parsed_post, ['DT', 'NN']),
+            # 60 whether exist EX
+            1 if match_tags(parsed_post, ['EX']) > 1 else 0
+        ])
+    return features
+
 
 def main():
     with open('../data/cb-small/instances.jsonl', 'r') as f:
