@@ -13,7 +13,7 @@ HIDDEN_SIZE = 256
 # KERNEL_SIZES = [3, 4, 5]
 
 
-class ParallelNet(TorchBase):
+class ParallelNet3(TorchBase):
 
     def __init__(self):
         super(ParallelNet, self).__init__()
