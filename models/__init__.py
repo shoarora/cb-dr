@@ -6,6 +6,7 @@ from svm import SVM
 from nn import VanillaNN
 from rnn import RNN
 from cnn import CNN
+from pnet import ParallelNet
 import feature_extraction as FE
 
 
@@ -14,7 +15,8 @@ model_options = {
     'lr': LogisticRegression,
     'nn': VanillaNN,
     'rnn': RNN,
-    'cnn': CNN
+    'cnn': CNN,
+    'pnet': ParallelNet
 }
 
 sk_model_options = {
