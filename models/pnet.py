@@ -44,7 +44,7 @@ class ParallelNet(TorchBase):
         print x.size(), y.size()
         x = self.embedding(x.long())  # [batch x num_words x glove]
         y = self.embedding(y.long())
-
+        print x.size(), y.size()
         x = self.net1.extract_features(x)
         y = self.net2.extract_features(x)
         z = self.combine(torch.concat([x, y], 0))
