@@ -5,7 +5,7 @@ from pytorchbase import TorchBase
 from feature_extraction import get_word_ids
 from rnn import RNN
 
-INPUT_DIM = 300
+INPUT_DIM = 50
 HIDDEN_SIZE = 256
 
 # KERNEL_DIM = 100
