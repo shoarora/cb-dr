@@ -1,3 +1,4 @@
+import numpy as np
 import torch
 from torch import nn
 from pytorchbase import TorchBase
@@ -24,6 +25,7 @@ class ParallelNet(TorchBase):
         self.net2 = RNN(input_dim=INPUT_DIM, hidden_size=HIDDEN_SIZE)
 
         self.combine = nn.Linear(HIDDEN_SIZE * 2, HIDDEN_SIZE)
+        self.activation = nn.Tanh()
         self.fc = nn.Linear(HIDDEN_SIZE * 3, HIDDEN_SIZE)
 
     def preprocess_inputs(self, inputs, ids, path):
@@ -31,9 +33,9 @@ class ParallelNet(TorchBase):
                                    self.num_words, target='post')
         title_inputs = get_word_ids(inputs, self.vocab,
                                     self.num_words, target='title')
-        print torch.Tensor(zip(post_inputs, title_inputs)).size()
-        raise
-        return zip(post_inputs, title_inputs)  # TODO adjust dataloader to accept this OR just pass them as 2d
+        # return zip(post_inputs, title_inputs)  # TODO adjust dataloader to accept this OR just pass them as 2d
+        new_inputs = [np.array(x, type=np.int32) for x in zip(post_inputs, title_inputs)]
+        return new_inputs
 
     def forward(self, x):
         x, y = torch.chunk(x, 2, dim=1)
@@ -44,5 +46,5 @@ class ParallelNet(TorchBase):
         x = self.net1.extract_features(x)
         y = self.net2.extract_features(x)
         z = self.combine(torch.concat([x, y], 0))
-
+        z = self.activation(z)
         return self.fc(torch.concat([x, y, z], 0))
