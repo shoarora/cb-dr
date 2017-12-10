@@ -24,12 +24,13 @@ class ParallelNet(TorchBase):
 
         self.net1 = self.init_CNN()
         self.net2 = self.init_CNN()
+        self.net3 = self.init_CNN()
 
         self.combine_dim = 256
-        self.combine = nn.Linear(self.net1.fc_dim + self.net2.fc_dim,
+        self.combine = nn.Linear(self.net1.fc_dim + self.net2.fc_dim + self.net3.fc_dim,
                                  self.combine_dim)
         self.activation = nn.Tanh()
-        self.fc_dim = self.net1.fc_dim + self.net2.fc_dim + self.combine_dim
+        self.fc_dim = self.net1.fc_dim + self.net2.fc_dim + self.net3.fc_dim + self.combine_dim
         self.fc = nn.Linear(self.fc_dim, 1)
 
     def init_CNN(self):
@@ -50,21 +51,26 @@ class ParallelNet(TorchBase):
                                    self.num_words, target='post')
         title_inputs = get_word_ids(inputs, self.vocab,
                                     self.num_words, target='title')
+        text_inputs = get_word_ids(inputs, self.vocab,
+                                   self.num_words, target='text')
         new_inputs = [np.array(x, dtype=np.int32)
-                      for x in zip(post_inputs, title_inputs)]
+                      for x in zip(post_inputs, title_inputs, text_inputs)]
         return new_inputs
 
     def forward(self, x):
-        x, y = torch.chunk(x, 2, dim=1)
+        x, y, z = torch.chunk(x, 3, dim=1)
         x = torch.squeeze(x)
         y = torch.squeeze(y)
+        z = torch.squeeze(z)
 
         x = self.embedding(x.long())
         y = self.embedding(y.long())
+        z = self.embedding(z.long())
 
         x = self.net1.extract_features(x)
         y = self.net2.extract_features(y)
+        z = self.net3.extract_features(z)
 
-        z = self.combine(torch.cat([x, y], 1))
-        z = self.activation(z)
-        return self.fc(torch.cat([x, y, z], 1))
+        out = self.combine(torch.cat([x, y, z], 1))
+        out = self.activation(out)
+        return self.fc(torch.cat([x, y, z, out], 1))
