@@ -41,7 +41,7 @@ class ParallelNet(TorchBase):
         x, y = torch.chunk(x, 2, dim=1)
         x = torch.squeeze(x)
         y = torch.squeeze(x)
-
+        print x.size(), y.size()
         x = self.embedding(x.long())  # [batch x num_words x glove]
         y = self.embedding(y.long())
 
