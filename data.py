@@ -31,11 +31,11 @@ def get_datasets(batch_size, path, preprocess_f, sk=False):
         ids = np.array([inp['id'] for inp in inputs], dtype=np.int64)
         return ids, preprocess_f(inputs, ids, path), labels
 
-    num_entries = len(inputs)
-    index = np.random.permutation(range(num_entries))
-
     inputs = load_instances_json(path)
     labels = load_truth_json(path)
+
+    num_entries = len(inputs)
+    index = np.random.permutation(range(num_entries))
 
     inputs = rearrange(inputs, index)
     labels = rearrange(labels, index)
