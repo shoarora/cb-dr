@@ -31,11 +31,13 @@ class ParallelNet(TorchBase):
                                    self.num_words, target='post')
         title_inputs = get_word_ids(inputs, self.vocab,
                                     self.num_words, target='title')
-        print torch.Tensor(zip(text_inputs, title_inputs)).size()
+        print torch.Tensor(zip(post_inputs, title_inputs)).size()
         raise
-        return zip(text_inputs, title_inputs)  # TODO adjust dataloader to accept this OR just pass them as 2d
+        return zip(post_inputs, title_inputs)  # TODO adjust dataloader to accept this OR just pass them as 2d
 
-    def forward(self, x, y):
+    def forward(self, x):
+        x, y = torch.chunk(x, 2, dim=1)
+
         x = self.embedding(x.long())  # [batch x num_words x glove]
         y = self.embedding(y.long())
 
