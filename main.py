@@ -33,7 +33,7 @@ def get_parser():
     parser.add_argument('--sess_name')
     parser.add_argument('--gpu_num', type=int)
     parser.add_argument('--l1', action='store_true')
-    parser.add_argument('choice', choices={'post', 'title', 'text'})
+    parser.add_argument('--choice', choices={'post', 'title', 'text'})
     return parser
 
 
