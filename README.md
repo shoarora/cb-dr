@@ -5,33 +5,28 @@ a clickbait classifier inspired by the [Clickbait Challenge 2017] (http://www.cl
 implemented in `sklearn` and `pytorch`
 
 
-
-## ideas
--   balanced datasets [sun]
--   classify instead
--   glove dims
--   round 0-1 inputs [sun]
--   qrnn
--   cnn parameters [jeff]
--   weight decay
-
-
-
-
-## TODOs
--  improve tokenization
--  use 2d weights https://nbviewer.jupyter.org/github/DSKSD/DeepNLP-models-Pytorch/blob/master/notebooks/04.Window-Classifier-for-NER.ipynb
--  get rnn working
--  get cnn working
--  learn on post titles
+## Paper distribution
+-   \[jeff\] Abstract
+-   \[jeff\] Intro (0.5pages)
+-   \[jeff\] Related Work (0.5pages)
+-   \[sho\] Data + Features (0.5-1pages)
+-   \[sho\] Methods (1-1.5pages)
+-   \[peter\] Experiments / Results / Discussion (1-3pages)
+-   \[jeff\] Conclusion + Future Work (0.5pages)
+-   \[everyone\] Contributions + References
 
 ## Models
--   [done] Logistic Regression
--   [done] SVM
--   [done] Vanilla NN
--   RNN (pytorch rnn, gru, lstm, etc should be interchangeable)
+-   Logistic Regression
+-   SVM
+-   RNN (GRU)
 -   CNN
--   Additional features from media
+-   Parallel Convolutional Networks
+
+## How to run
+`python main.py -h` or `python sk_main.py -h` to see particular options.
+Weights were too large to save in github, but our results by iteration
+can be found in `/checkpoints`
+
 
 ## Directory Contents
 -   `checkpoints`: where session checkpoints are stored
@@ -40,4 +35,5 @@ implemented in `sklearn` and `pytorch`
 -   `download_datasets.sh`: download scripts to fetch the datasets
 -   `eval.py`: the Clickbait Challenge's official evaluation script, modified to fit right into the training routine
 -   `main.py`: defines argument parsing, training and eval routines
+-   `sk_main.py`: slightly different routine for running `scikit-learn` models
 -   `util.py`: extra utilites such as progress bars, file writing, etc
