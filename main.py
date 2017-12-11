@@ -189,7 +189,7 @@ if __name__ == '__main__':
     # init training optimizer and criterion
     parameters = filter(lambda p: p.requires_grad, model.parameters())
     optimizer = torch.optim.Adam(parameters, weight_decay=1e-6)
-    criterion = torch.nn.MSELoss()
+    criterion = torch.nn.L1Loss()
 
     # load saved weights if available
     sess_name = args.sess_name

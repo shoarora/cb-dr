@@ -16,7 +16,7 @@ HIDDEN_SIZE = 256
 class ParallelNet3(TorchBase):
 
     def __init__(self):
-        super(ParallelNet, self).__init__()
+        super(ParallelNet3, self).__init__()
         self.num_words = 100
         self.glove_dim = INPUT_DIM
         self.load_glove()
