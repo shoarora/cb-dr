@@ -12,11 +12,12 @@ KERNEL_DIM = 100
 class CNN(TorchBase):
 
     def __init__(self, input_dim=INPUT_DIM, kernel_sizes=KERNEL_SIZES,
-                 kernel_dim=KERNEL_DIM, load_glove=True):
+                 kernel_dim=KERNEL_DIM, load_glove=True, choice='text'):
         super(CNN, self).__init__()
         self.num_words = 100
         self.dropout_p = 0.2
         self.dropout = nn.Dropout(self.dropout_p)
+        self.choice = choice
 
         if load_glove:
             self.load_glove()
@@ -31,7 +32,7 @@ class CNN(TorchBase):
         self.linear = nn.Linear(self.fc_dim, 1)  # TODO what dim?
 
     def preprocess_inputs(self, inputs, ids, path):
-        new_inputs = get_word_ids(inputs, self.vocab, self.num_words)
+        new_inputs = get_word_ids(inputs, self.vocab, self.num_words, target=self.choice)
         return new_inputs
 
     def extract_features(self, x):
