@@ -13,7 +13,6 @@ import feature_extraction as FE
 
 model_options = {
     'no': AlwaysNo,
-    'lr': LogisticRegression,
     'nn': VanillaNN,
     'rnn': RNN,
     'cnn': CNN,
@@ -22,6 +21,7 @@ model_options = {
 }
 
 sk_model_options = {
+    'lr': LogisticRegression,
     'bayesRR': BayesianRidge,
     'kernelRR': KernelRidgeRegression,
     'svm': SVM
