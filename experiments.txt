@@ -7,3 +7,5 @@ python main.py --train --dataset big --cuda --gpu_num 1 --model pnet3 --sess_nam
 python main.py --train --dataset big --cuda --gpu_num 2 --model cnn --sess_name big-cnn-post --choice post
 python main.py --train --dataset big --cuda --gpu_num 3 --model cnn --sess_name big-cnn-text --choice text
 python main.py --train --dataset big --cuda --gpu_num 0 --model cnn --sess_name big-cnn-title --choice title
+
+python main.py --train --dataset big --cuda --gpu_num 3 --model pnet --sess_name big-pnet

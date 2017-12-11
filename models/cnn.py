@@ -1,3 +1,8 @@
+'''
+Architecture adapted from
+https://nbviewer.jupyter.org/github/DSKSD/DeepNLP-models-Pytorch/blob/master/notebooks/08.CNN-for-Text-Classification.ipynb
+'''
+
 import torch
 import torch.nn.functional as F
 from torch import nn

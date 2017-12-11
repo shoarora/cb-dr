@@ -1,0 +1,52 @@
+measure {
+ key: "Size"
+ value: "11722"
+}
+measure {
+ key: "#Clickbait"
+ value: "2879"
+}
+measure {
+ key: "#No-Clickbait"
+ value: "8843"
+}
+measure {
+ key: "R2 score"
+ value: "0.824153694461"
+}
+measure {
+ key: "Mean absolute error"
+ value: "0.0996062575318"
+}
+measure {
+ key: "Normalized mean squared error"
+ value: "0.175846305539"
+}
+measure {
+ key: "Explained variance"
+ value: "0.83546466502"
+}
+measure {
+ key: "Mean squared error"
+ value: "0.0192734440054"
+}
+measure {
+ key: "Median absolute error"
+ value: "0.0732696528069"
+}
+measure {
+ key: "Recall"
+ value: "0.907954150747"
+}
+measure {
+ key: "F1 score"
+ value: "0.909059294036"
+}
+measure {
+ key: "Precision"
+ value: "0.910167130919"
+}
+measure {
+ key: "Accuracy"
+ value: "0.955383040437"
+}
