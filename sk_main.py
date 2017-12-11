@@ -14,7 +14,6 @@ data_paths = {
 
 CKPT = 'checkpoints'
 
-
 def get_parser():
     parser = argparse.ArgumentParser()
     # parser.add_argument('--train', action='store_true')
@@ -75,6 +74,7 @@ def main():
     results_dir = os.path.join(CKPT, args.sess_name, 'results')
     mkdir(results_dir)
     print 'evaluating...'
+    evaluate(model, train_set, results_dir, 'train', truth_file)
     evaluate(model, dev_set, results_dir, 'dev', truth_file)
     evaluate(model, test_set, results_dir, 'test', truth_file)
     print 'done evaluating.'
