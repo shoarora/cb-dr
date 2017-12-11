@@ -15,6 +15,7 @@ import spacy
 from spacy.tokenizer import Tokenizer
 from spacy.pipeline import Tagger
 
+from tqdm import tqdm
 
 def get_word_ids(inputs, vocab, num_words=None, target='text'):
     targets = {
@@ -206,7 +207,7 @@ def top_60_feature_extraction(inputs):
     tagger = Tagger(nlp.vocab, model=True)
 
     features = []
-    for inp in inputs:
+    for inp in tqdm(inputs):
         postStr = ' '.join(inp['postText'])
 
         parsed_post = nlp(postStr)
@@ -221,10 +222,6 @@ def top_60_feature_extraction(inputs):
 
         # get word lengths in post
         lens = [len(token.text) for token in parsed_post]
-
-        print keywords
-        print postStr
-        print len(filter(lambda x: x in postStr.lower(), keywords))
 
         features.append([
             # 1 number of proper nouns
