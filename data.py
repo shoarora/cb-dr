@@ -36,10 +36,6 @@ def get_datasets(batch_size, path, preprocess_f, sk=False, classify=False):
     labels = load_truth_json(path, classify=classify)
 
     num_entries = len(inputs)
-    index = np.random.permutation(range(num_entries))
-
-    inputs = rearrange(inputs, index)
-    labels = rearrange(labels, index)
 
     train_ids, train_inputs, train_labels = process_inputs(inputs,
                                                            labels,
