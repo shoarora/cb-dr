@@ -5,7 +5,7 @@ from torch.autograd import Variable
 
 from data import get_datasets
 from eval import evaluate_results
-from models import model_options
+from models import model_options, ParallelNet3
 from util import Progbar, mkdir, write_predictions_to_file
 
 
@@ -28,11 +28,12 @@ def get_parser():
     parser.add_argument('--train', action='store_true')
     parser.add_argument('--eval_only', action='store_true')
     parser.add_argument('--dataset', choices={'small', 'big'})
-    parser.add_argument('--model', choices=model_options.keys())
+    # parser.add_argument('--model', choices=model_options.keys())
     parser.add_argument('--cuda', action='store_true')
     parser.add_argument('--sess_name')
     parser.add_argument('--gpu_num', type=int)
-    parser.add_argumetn('--classify', action='store_true')
+    parser.add_argument('--classify', action='store_true')
+    parser.add_argument('--top60', action='store_true')
     return parser
 
 
@@ -178,7 +179,7 @@ if __name__ == '__main__':
         device_num = args.gpu_num
 
     # load model.  model_options defined in models/__init__.py
-    model = model_options[args.model](classify=args.classify)
+    model = ParallelNet3(classify=args.classify, add_top60=args.top60)
     best_dev_acc = 0.0
     epoch = 0
 
