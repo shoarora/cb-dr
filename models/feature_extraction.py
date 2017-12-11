@@ -15,6 +15,7 @@ import spacy
 from spacy.tokenizer import Tokenizer
 from spacy.pipeline import Tagger
 
+from tqdm import tqdm
 
 def get_word_ids(inputs, vocab, num_words=None, target='text'):
     targets = {
@@ -154,10 +155,8 @@ def tfidf_feature_extraction(path,  save_title, choice, freq_floor = 0):
 def is_first_word_number(parsed):
     if parsed[0].pos_ == 'NUM':
         return True
-    if len(parsed.ents) > 0 and \
-            parsed.ents[0].label_ in ['PERCENT', 'MONEY', 'QUANTITY', 'ORDINAL', 'CARDINAL']:
-        return True
-    return False
+    return len(parsed.ents) > 0 and \
+        parsed.ents[0].label_ in ['PERCENT', 'MONEY', 'QUANTITY', 'ORDINAL', 'CARDINAL']
 
 def match(parsed, window, condition):
     count = 0
@@ -183,13 +182,9 @@ def match_NNP_period(parsed):
 
 def match_NUM_NP_VB(parsed):
     def NUM_NP_VB(tokens):
-        if tokens[0].pos_ == 'NUM' and \
+        return tokens[0].pos_ == 'NUM' and \
                tokens[1].pos_ == 'NOUN' and \
-               tokens[2].pos_ == 'VERB':
-            print tokens
-            return True
-        else:
-            return False
+               tokens[2].pos_ == 'VERB'
     return match(parsed, window=3, condition=NUM_NP_VB)
 
 # usage: match_tags(parsed_post, ['NNP', 'VBZ']) --> # of NNP VBZ matches
@@ -206,12 +201,15 @@ def top_60_feature_extraction(inputs):
     tagger = Tagger(nlp.vocab, model=True)
 
     features = []
-    for inp in inputs:
+    for inp in tqdm(inputs):
         postStr = ' '.join(inp['postText'])
 
         parsed_post = nlp(postStr)
         parsed_title = nlp(inp['targetTitle'])
         keywords = [kw.strip().lower() for kw in inp['targetKeywords'].split(',')]
+
+        if len(parsed_post) == 0:
+            parsed_post = nlp(inp['targetDescription'])
 
         # tokenize (also by punctuation)
         tokens_by_punc = word_tokenize(postStr)
@@ -221,10 +219,6 @@ def top_60_feature_extraction(inputs):
 
         # get word lengths in post
         lens = [len(token.text) for token in parsed_post]
-
-        print keywords
-        print postStr
-        print len(filter(lambda x: x in postStr.lower(), keywords))
 
         features.append([
             # 1 number of proper nouns

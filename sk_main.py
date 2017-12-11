@@ -66,14 +66,18 @@ def main():
     train_set, dev_set, test_set = get_datasets(model.batch_size, data_path,
                                                 model.preprocess_inputs, sk=True)
 
+    print 'training...'
     train(model, train_set)
+    print 'done training.'
 
     truth_file = os.path.join(data_path, 'truth.jsonl')
     mkdir(os.path.join(CKPT, args.sess_name))
     results_dir = os.path.join(CKPT, args.sess_name, 'results')
     mkdir(results_dir)
+    print 'evaluating...'
     evaluate(model, dev_set, results_dir, 'dev', truth_file)
-    #evaluate(model, test_set, results_dir, 'test', truth_file)
+    evaluate(model, test_set, results_dir, 'test', truth_file)
+    print 'done evaluating.'
 
 
 if __name__ == "__main__":
