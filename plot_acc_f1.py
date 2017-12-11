@@ -5,13 +5,13 @@ import matplotlib.pyplot as plt
 import random as random 
 
 results_path = 'clickbait17-validation-170630/results3l1/'
-
+num_epochs = 32
 acc = []
 f1 = []
 next_f1 = False
 next_acc = False
 
-for i in range(0, 32):
+for i in range(0, num_epochs):
 
 	filename = 'dev' + str(i) + '_output.prototext'
 	
