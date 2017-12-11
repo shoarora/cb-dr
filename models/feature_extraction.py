@@ -158,7 +158,7 @@ def is_first_word_number(parsed):
     if parsed[0].pos_ == 'NUM':
         return True
     return len(parsed.ents) > 0 and \
-        parsed.ents[0].label_ in ['PERCENT', 'MONEY', 'QUANTITY', 'ORDINAL', 'CARDINAL']:
+        parsed.ents[0].label_ in ['PERCENT', 'MONEY', 'QUANTITY', 'ORDINAL', 'CARDINAL']
 
 def match(parsed, window, condition):
     count = 0
