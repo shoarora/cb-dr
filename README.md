@@ -7,16 +7,13 @@ implemented in `sklearn` and `pytorch`
 
 
 ## ideas
--   rnn grid [sho]
--   balanced datasets [peter]
+-   balanced datasets [sun]
 -   classify instead
 -   glove dims
--   round 0-1 inputs
+-   round 0-1 inputs [sun]
 -   qrnn
 -   cnn parameters [jeff]
--   pnet [sho]
--   weight decay [jeff]
--   title [peter]
+-   weight decay
 
 
 
