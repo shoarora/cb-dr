@@ -59,11 +59,14 @@ class ParallelNet3(TorchBase):
         new_inputs.append(get_word_ids(inputs, self.vocab,
                           self.num_words, target='text'))
         if self.add_top60:
-            new_inputs.append([
+            top60 = [
                 np.array(x) for x in top_60_feature_extraction(inputs)
-            ])
+            ]
+            for i in range(len(top60)):
+                while top60[i] < self.num_words:
+                    top60[i].append(0.0)
 
-        new_inputs = [np.array(x, dtype=np.int32)
+        new_inputs = [np.array(x)
                       for x in zip(*new_inputs)]
         return new_inputs
 
@@ -88,6 +91,7 @@ class ParallelNet3(TorchBase):
         out = self.activation(out)
 
         if self.add_top60:
+            top60 = top60[:50]
             final = torch.cat([x, y, z, out, torch.squeeze(top60)], 1)
         else:
             final = torch.cat([x, y, z, out], 1)
