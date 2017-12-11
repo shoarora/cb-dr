@@ -3,7 +3,7 @@ from skbase import SKBase
 
 class LogisticRegression(SKBase):
     def __init__(self, choice=None, freq_floor=None):
-        super(LogisticRegression, self).__init__()
+        super(LogisticRegression, self).__init__(choice, freq_floor)
         # support vector regression
         self.model = LR()
 
