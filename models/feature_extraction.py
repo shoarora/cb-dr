@@ -153,8 +153,6 @@ def tfidf_feature_extraction(path,  save_title, choice, freq_floor = 0):
 # I think this method is actually more robust than just checking
 # if the first word is a number.
 def is_first_word_number(parsed):
-    if len(parsed) == 0:
-        return False
     if parsed[0].pos_ == 'NUM':
         return True
     return len(parsed.ents) > 0 and \
@@ -209,6 +207,9 @@ def top_60_feature_extraction(inputs):
         parsed_post = nlp(postStr)
         parsed_title = nlp(inp['targetTitle'])
         keywords = [kw.strip().lower() for kw in inp['targetKeywords'].split(',')]
+
+        if len(parsed_post) == 0:
+            continue
 
         # tokenize (also by punctuation)
         tokens_by_punc = word_tokenize(postStr)
