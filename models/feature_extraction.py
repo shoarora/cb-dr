@@ -209,7 +209,7 @@ def top_60_feature_extraction(inputs):
         keywords = [kw.strip().lower() for kw in inp['targetKeywords'].split(',')]
 
         if len(parsed_post) == 0:
-            continue
+            parsed_post = nlp(inp['targetDescription'])
 
         # tokenize (also by punctuation)
         tokens_by_punc = word_tokenize(postStr)
