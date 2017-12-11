@@ -153,16 +153,12 @@ def tfidf_feature_extraction(path,  save_title, choice, freq_floor = 0):
 # I think this method is actually more robust than just checking
 # if the first word is a number.
 def is_first_word_number(parsed):
-    try:
-        if parsed[0].pos_ == 'NUM':
-            return True
-    except IndexError:
-        print parsed
-        raise
-    if len(parsed.ents) > 0 and \
-            parsed.ents[0].label_ in ['PERCENT', 'MONEY', 'QUANTITY', 'ORDINAL', 'CARDINAL']:
+    if len(parsed) == 0:
+        return False
+    if parsed[0].pos_ == 'NUM':
         return True
-    return False
+    return len(parsed.ents) > 0 and \
+        parsed.ents[0].label_ in ['PERCENT', 'MONEY', 'QUANTITY', 'ORDINAL', 'CARDINAL']:
 
 def match(parsed, window, condition):
     count = 0
