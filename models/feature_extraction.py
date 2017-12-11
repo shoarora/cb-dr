@@ -184,13 +184,9 @@ def match_NNP_period(parsed):
 
 def match_NUM_NP_VB(parsed):
     def NUM_NP_VB(tokens):
-        if tokens[0].pos_ == 'NUM' and \
+        return tokens[0].pos_ == 'NUM' and \
                tokens[1].pos_ == 'NOUN' and \
-               tokens[2].pos_ == 'VERB':
-            print tokens
-            return True
-        else:
-            return False
+               tokens[2].pos_ == 'VERB'
     return match(parsed, window=3, condition=NUM_NP_VB)
 
 # usage: match_tags(parsed_post, ['NNP', 'VBZ']) --> # of NNP VBZ matches
