@@ -24,7 +24,8 @@ def rearrange(arr, index):
         new_arr[i] = element
     return new_arr
 
-def get_datasets(batch_size, path, preprocess_f, sk=False):
+
+def get_datasets(batch_size, path, preprocess_f, sk=False, classify=False):
     def process_inputs(inputs, labels, start_i, end_i):
         inputs = inputs[start_i:end_i]
         labels = labels[start_i:end_i]
@@ -32,7 +33,7 @@ def get_datasets(batch_size, path, preprocess_f, sk=False):
         return ids, preprocess_f(inputs, ids, path), labels
 
     inputs = load_instances_json(path)
-    labels = load_truth_json(path)
+    labels = load_truth_json(path, classify=classify)
 
     num_entries = len(inputs)
     index = np.random.permutation(range(num_entries))

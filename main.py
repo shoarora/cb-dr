@@ -5,7 +5,7 @@ from torch.autograd import Variable
 
 from data import get_datasets
 from eval import evaluate_results
-from models import model_options
+from models import model_options, ParallelNet3
 from util import Progbar, mkdir, write_predictions_to_file
 
 
@@ -28,10 +28,12 @@ def get_parser():
     parser.add_argument('--train', action='store_true')
     parser.add_argument('--eval_only', action='store_true')
     parser.add_argument('--dataset', choices={'small', 'big'})
-    parser.add_argument('--model', choices=model_options.keys())
+    # parser.add_argument('--model', choices=model_options.keys())
     parser.add_argument('--cuda', action='store_true')
     parser.add_argument('--sess_name')
     parser.add_argument('--gpu_num', type=int)
+    parser.add_argument('--classify', action='store_true')
+    parser.add_argument('--top60', action='store_true')
     return parser
 
 
@@ -177,7 +179,7 @@ if __name__ == '__main__':
         device_num = args.gpu_num
 
     # load model.  model_options defined in models/__init__.py
-    model = model_options[args.model]()
+    model = ParallelNet3(classify=args.classify, add_top60=args.top60)
     best_dev_acc = 0.0
     epoch = 0
 
@@ -189,7 +191,11 @@ if __name__ == '__main__':
     # init training optimizer and criterion
     parameters = filter(lambda p: p.requires_grad, model.parameters())
     optimizer = torch.optim.Adam(parameters, weight_decay=1e-6)
-    criterion = torch.nn.L1Loss()
+
+    if args.classify:
+        criterion = torch.nn.CrossEntropyLoss()
+    else:
+        criterion = torch.nn.L1Loss()
 
     # load saved weights if available
     sess_name = args.sess_name
@@ -203,7 +209,7 @@ if __name__ == '__main__':
     # load data
     data_path = data_paths[args.dataset]
     datasets = get_datasets(model.batch_size, data_path,
-                            model.preprocess_inputs)
+                            model.preprocess_inputs, classify=args.classify)
 
     # set up storage for eval results
     truth_file = os.path.join(data_path, 'truth.jsonl')
