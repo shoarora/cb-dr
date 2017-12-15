@@ -1,7 +1,7 @@
 # cb-dr
 don't read clickbait
 
-a clickbait classifier inspired by the [Clickbait Challenge 2017] (http://www.clickbait-challenge.org/)
+a clickbait classifier inspired by the [Clickbait Challenge 2017](http://www.clickbait-challenge.org/)
 implemented in `sklearn` and `pytorch`
 
 
