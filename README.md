@@ -5,16 +5,6 @@ a clickbait classifier inspired by the [Clickbait Challenge 2017](http://www.cli
 implemented in `sklearn` and `pytorch`
 
 
-## Paper distribution
--   \[jeff\] Abstract
--   \[jeff\] Intro (0.5pages)
--   \[jeff\] Related Work (0.5pages)
--   \[sho\] Data + Features (0.5-1pages)
--   \[sho\] Methods (1-1.5pages)
--   \[peter\] Experiments / Results / Discussion (1-3pages)
--   \[jeff\] Conclusion + Future Work (0.5pages)
--   \[everyone\] Contributions + References
-
 ## Models
 -   Logistic Regression
 -   SVM
