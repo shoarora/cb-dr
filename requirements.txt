@@ -37,7 +37,7 @@ torch==0.2.0.post3
 torchvision==0.1.9
 torchwordemb==0.0.8
 tqdm==4.19.5
-ujson==1.35
+ujson==5.4.0
 Unidecode==0.4.21
 urllib3==1.22
 wcwidth==0.1.7
